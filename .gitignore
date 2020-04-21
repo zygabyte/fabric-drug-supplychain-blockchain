@@ -16,6 +16,9 @@ application/client/node_modules/*
 !.vscode/extensions.json
 .history/*
 
+# IDE - jetbrains
+.idea/*
+
 # System Files
 **/.DS_Store
 

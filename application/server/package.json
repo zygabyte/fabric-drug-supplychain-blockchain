@@ -13,7 +13,7 @@
     "cors": "^2.8.5",
     "express": "~4.16.0",
     "fabric-ca-client": "1.4.0",
-    "fabric-client": "1.4.0",
+    "fabric-client": "~1.4.0",
     "fabric-network": "1.4.0",
     "http-errors": "~1.6.2",
     "ibm-cloud-env": "^0.2.6",

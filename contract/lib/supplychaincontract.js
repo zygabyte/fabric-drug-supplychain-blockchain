@@ -644,6 +644,8 @@ class SupplychainContract extends Contract {
         if (userid == "admin") {
             return userid;
         }
+        
+        console.log('current user type is ', ctx.clientIdentity.getAttributeValue("usertype"));
         return ctx.clientIdentity.getAttributeValue("usertype");
     }
 }  //  Class SupplychainContract

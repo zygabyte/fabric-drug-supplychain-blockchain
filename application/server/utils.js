@@ -16,10 +16,10 @@ var bcChannelName = "bcEventsChannel-gen";
 var gateway;
 var configdata;
 var network;
-var wallet;
+var wallet; // ../../gateway/local/gen_local_wallet
 var bLocalHost;
-var ccp;
-var orgMSPID;
+var ccp; // ../../gateway/local/fabric_connection.json
+var orgMSPID; // Org1MSP
 const EVENT_TYPE = "bcpocevent";  //  HLFabric EVENT
 
 const SUCCESS = 0;
@@ -56,7 +56,7 @@ utils.connectGatewayFromConfig = async () => {
             bLocalHost = true;
         }
 
-        const walletpath = configdata["wallet"];
+        const walletpath = configdata["wallet"]; // ../../gateway/local/gen_local_wallet
         console.log("walletpath = " + walletpath);
 
         // Parse the connection profile. This would be the path to the file downloaded
@@ -252,10 +252,10 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
 
     // get certification authority
     console.log('Getting CA');
-    const orgs = ccp.organizations;
-    const CAs = ccp.certificateAuthorities;
-    const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0];
-    const caURL = CAs[fabricCAKey].url;
+    const orgs = ccp.organizations; // organizations
+    const CAs = ccp.certificateAuthorities; // certificateAuthorities
+    const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0]; // organizations[Org1MSP].certificateAuthorities[0] => Org1CA
+    const caURL = CAs[fabricCAKey].url; // certificateAuthorities[Org1CA].url => http://localhost:17050
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
 
     var newUserDetails = {

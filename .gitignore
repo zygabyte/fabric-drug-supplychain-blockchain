@@ -1,4 +1,5 @@
 contract/.vscode/*
+contract/node_modules/*
 gateway/ibp/fabric_connection.json
 gateway/ibp/gen_ibp_wallet/*
 gateway/local/gen_local_wallet/*

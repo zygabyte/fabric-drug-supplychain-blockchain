@@ -15,11 +15,11 @@ const FabricCAServices = require('fabric-ca-client');
 var gateway;
 var network;
 var contract = null;
-var configdata;
-var wallet;
-var bLocalHost;
-var ccp;
-var orgMSPID;
+var configdata; // config.json
+var wallet; // ../../gateway/local/gen_local_wallet
+var bLocalHost; // true
+var fabricConnProfile;  // ../../gateway/local/fabric_connection.json   -> the fabric connection profile
+var orgMSPID;  // Org1MSP
 const EVENT_TYPE = "bcpocevent";  //  HLFabric EVENT
 
 const SUCCESS = 0;
@@ -84,10 +84,10 @@ utils.connectGatewayFromConfig = async () => {
         console.log('user: ' + userid + ", pwd: ", pwd + ", usertype: ", usertype);
 
         // Load connection profile; will be used to locate a gateway
-        ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+        fabricConnProfile = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
         // Set up the MSP Id
-        orgMSPID = ccp.client.organization;
+        orgMSPID = fabricConnProfile.client.organization;
         console.log('MSP ID: ' + orgMSPID);
 
         // Open path to the identity wallet
@@ -100,9 +100,12 @@ utils.connectGatewayFromConfig = async () => {
             await utils.enrollUser(userid, pwd, usertype);
         }
 
+        // 1. connect to gateway
+        // 2. connect to channel
+        // 3. connect to smart contract on channel
         // Connect to gateway using application specified parameters
         console.log('Connect to Fabric gateway.');
-        await gateway.connect(ccp, {
+        await gateway.connect(fabricConnProfile, {
             identity: userid, wallet: wallet, discovery: { enabled: true, asLocalhost: bLocalHost }
         });
 
@@ -199,10 +202,10 @@ utils.registerUser = async (userid, userpwd, usertype, adminIdentity) => {
     const gateway = new Gateway();
 
     // Connect to gateway as admin
-    await gateway.connect(ccp, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
+    await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
 
-    const orgs = ccp.organizations;
-    const CAs = ccp.certificateAuthorities;
+    const orgs = fabricConnProfile.organizations;
+    const CAs = fabricConnProfile.certificateAuthorities;
     const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0];
     const caURL = CAs[fabricCAKey].url;
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
@@ -242,10 +245,10 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
     console.log("userid: " + userid + ", pwd: " + userpwd + ", usertype:" + usertype);
 
     // get certificate authority
-    const orgs = ccp.organizations;
-    const CAs = ccp.certificateAuthorities;
-    const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0];
-    const caURL = CAs[fabricCAKey].url;
+    const orgs = fabricConnProfile.organizations;  // organizations
+    const CAs = fabricConnProfile.certificateAuthorities; // certificateAuthorities
+    const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0]; // organizations[Org1MSP].certificateAuthorities[0] => Org1CA
+    const caURL = CAs[fabricCAKey].url; // certificateAuthorities[Org1CA].url => http://localhost:17050
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
 
     var newUserDetails = {
@@ -278,7 +281,7 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
 //  Purpose:    to set the context to the user (who called this api) so that ACLs can be applied
 //              for that user inside chaincode. All subsequent calls using that gateway / contract
 //              will be on this user's behalf.
-//  Input:      userid - which has been registered and enrolled earlier (so that certificates are
+//  Input:certificateAuthorities      userid - which has been registered and enrolled earlier (so that certificates are
 //              available in the wallet)
 //  Output:     no explicit output;  (Global variable) contract will be set to this user's context
 utils.setUserContext = async (userid, pwd) => {
@@ -300,7 +303,7 @@ utils.setUserContext = async (userid, pwd) => {
         // Connect to gateway using application specified parameters
         console.log('Connect to Fabric gateway with userid:' + userid);
         let userGateway = new Gateway();
-        await userGateway.connect(ccp, { identity: userid, wallet: wallet, discovery: { enabled: true, asLocalhost: bLocalHost } });
+        await userGateway.connect(fabricConnProfile, { identity: userid, wallet: wallet, discovery: { enabled: true, asLocalhost: bLocalHost } });
 
         network = await userGateway.getNetwork(configdata["channel_name"]);
         contract = await network.getContract(configdata["smart_contract_name"]);
@@ -325,7 +328,7 @@ utils.getUser = async (userid, adminIdentity) => {
     console.log(">>>getUser...");
     const gateway = new Gateway();
     // Connect to gateway as admin
-    await gateway.connect(ccp, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
+    await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
     let client = gateway.getClient();
     let fabric_ca_client = client.getCertificateAuthority();
     let idService = fabric_ca_client.newIdentityService();
@@ -350,7 +353,7 @@ utils.getAllUsers = async (adminIdentity) => {
     const gateway = new Gateway();
 
     // Connect to gateway as admin
-    await gateway.connect(ccp, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
+    await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
     let client = gateway.getClient();
     let fabric_ca_client = client.getCertificateAuthority();
     let idService = fabric_ca_client.newIdentityService();

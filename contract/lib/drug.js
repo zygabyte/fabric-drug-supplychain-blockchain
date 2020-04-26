@@ -9,13 +9,14 @@ const State = require('../ledger-api/state.js');
 
 // Enumerate drug state values
 const drugState = {
-    MANUFACTURER_SHIPPED: 1,    // manufacturer
-    DISTRIBUTOR_RECEIVED: 2,   // distributor
-    DISTRIBUTOR_SHIPPED: 3,   // distributor
-    WHOLESALER_RECEIVED: 4,  // wholesaler
-    WHOLESALER_SHIPPED: 5,  // wholesaler
-    RETAILER_RECEIVED: 6,  // retailer
-    DRUG_SOLD: 7 // sold
+    DRUG_CREATED: 1,    // manufacturer
+    MANUFACTURER_SHIPPED: 2,    // manufacturer
+    DISTRIBUTOR_RECEIVED: 3,   // distributor
+    DISTRIBUTOR_SHIPPED: 4,   // distributor
+    WHOLESALER_RECEIVED: 5,  // wholesaler
+    WHOLESALER_SHIPPED: 6,  // wholesaler
+    RETAILER_RECEIVED: 7,  // retailer
+    DRUG_SOLD: 8 // consumer
 };
 
 /**
@@ -44,7 +45,13 @@ class Drug extends State {
      {String} retailerId
      {Enumerated drugStates} currentDrugState
      {Date} created
-     {Date} modified
+     {Date} manufacturerShipped
+     {Date} distributorReceived
+     {Date} distributorShipped
+     {Date} wholesalerReceived
+     {Date} wholesalerShipped
+     {Date} retailerReceived
+     {Date} sold
      {String} currentOwner
    */
 
@@ -64,6 +71,10 @@ class Drug extends State {
     /**
      * Useful methods to encapsulate  Order states
      */
+    setStateToDrugCreated() {
+        this.currentDrugState = drugState.DRUG_CREATED;
+    }
+    
     setStateToManufacturerShipped() {
         this.currentDrugState = drugState.MANUFACTURER_SHIPPED;
     }

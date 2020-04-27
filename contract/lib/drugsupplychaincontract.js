@@ -167,7 +167,7 @@ class SupplychainContract extends Contract {
             throw new Error(`Error Message from manufacturerShipDrug: This user does not have access to ship drug of id ${drugId}`);
 
         if (!drugId || drugId.length < 1) {
-            throw new Error('drugId is required as input')
+            throw new Error('Error Message from manufacturerShipDrug: drugId is required as input')
         }
 
         // Retrieve the current drug using key provided
@@ -207,7 +207,7 @@ class SupplychainContract extends Contract {
     async distributorReceiveDrug(ctx, drugId) {
         console.info('============= distributor receive drug ===========');
 
-        //  The distributor receives the drug after it arrives 
+        //  The distributor receives the drug after it arrives from the manufacturer
 
         // Access Control: This transaction should only be invoked by a designated distributor
         const userType = await this.getCurrentUserType(ctx);
@@ -217,7 +217,7 @@ class SupplychainContract extends Contract {
             throw new Error(`Error Message from distributorReceiveDrug: This user does not have access to receive drug of id ${drugId}`);
 
         if (!drugId || drugId.length < 1) {
-            throw new Error('drugId is required as input')
+            throw new Error('Error Message from distributorReceiveDrug: drugId is required as input')
         }
 
         // Retrieve the current drug using key provided
@@ -231,7 +231,7 @@ class SupplychainContract extends Contract {
 
         // Change currentDrugState to DISTRIBUTOR_RECEIVED;
         drug.setStateToDistributorReceived();
-        // update the date and time it was shipped
+        // update the date and time it was received
         drug.distributorReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
         drug.currentOwner = await this.getCurrentUserId(ctx);
@@ -263,7 +263,7 @@ class SupplychainContract extends Contract {
             throw new Error(`Error Message from distributorShipDrug: This user does not have access to ship drug of id ${drugId}`);
 
         if (!drugId || drugId.length < 1) {
-            throw new Error('drugId is required as input')
+            throw new Error('Error Message from distributorShipDrug: drugId is required as input')
         }
 
         // Retrieve the current drug using key provided
@@ -279,6 +279,194 @@ class SupplychainContract extends Contract {
         drug.setStateToDistributorShipped();
         // update the date and time it was shipped
         drug.distributorShipped = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        // Track who exactly invoked this transaction
+        drug.currentOwner = await this.getCurrentUserId(ctx);
+
+        // Update ledger
+        await ctx.stub.putState(drugId, drug.toBuffer());
+
+        // Must return a serialized drug to caller of smart contract
+        return drug.toBuffer();
+    }
+    
+
+    //____________________________________________________________________________WHOLESALER____________________________________________________________________________
+    /**
+     * wholesalerReceiveDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  wholesalerReceiveDrug ('drug001')
+     */
+    async wholesalerReceiveDrug(ctx, drugId) {
+        console.info('============= wholesaler receive drug ===========');
+
+        //  The wholesaler receives the drug after it arrives from the distributor
+
+        // Access Control: This transaction should only be invoked by a designated wholesaler
+        const userType = await this.getCurrentUserType(ctx);
+
+        if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
+            (userType !== supplyChainActors.wholesaler))
+            throw new Error(`Error Message from wholesalerReceiveDrug: This user does not have access to receive drug of id ${drugId}`);
+
+        if (!drugId || drugId.length < 1) {
+            throw new Error('Error Message from wholesalerReceiveDrug: drugId is required as input')
+        }
+
+        // Retrieve the current drug using key provided
+        const drugAsBytes = await ctx.stub.getState(drugId);
+        if (!drugAsBytes || drugAsBytes.length === 0) {
+            throw new Error(`Error Message from wholesalerReceiveDrug: Drug with drugId = ${drugId} does not exist.`);
+        }
+
+        // Convert drug so we can modify fields
+        const drug = Drug.deserialize(drugAsBytes);
+
+        // Change currentDrugState to WHOLESALER_RECEIVED;
+        drug.setStateToWholesalerReceived();
+        // update the date and time it was received
+        drug.wholesalerReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        // Track who exactly invoked this transaction
+        drug.currentOwner = await this.getCurrentUserId(ctx);
+
+        // Update ledger
+        await ctx.stub.putState(drugId, drug.toBuffer());
+
+        // Must return a serialized drug to caller of smart contract
+        return drug.toBuffer();
+    }
+
+    /**
+     * wholesalerShipDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  wholesalerShipDrug ('drug001')
+     */
+    async wholesalerShipDrug(ctx, drugId) {
+        console.info('============= wholesaler ship drug ===========');
+
+        //  The wholesaler ships the drug when he's ready to transfer it to the next supply chain actor 
+
+        // Access Control: This transaction should only be invoked by a designated wholesaler
+        const userType = await this.getCurrentUserType(ctx);
+
+        if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
+            (userType !== supplyChainActors.wholesaler))
+            throw new Error(`Error Message from wholesalerShipDrug: This user does not have access to ship drug of id ${drugId}`);
+
+        if (!drugId || drugId.length < 1) {
+            throw new Error('Error Message from wholesalerShipDrug: drugId is required as input')
+        }
+
+        // Retrieve the current drug using key provided
+        const drugAsBytes = await ctx.stub.getState(drugId);
+        if (!drugAsBytes || drugAsBytes.length === 0) {
+            throw new Error(`Error Message from wholesalerShipDrug: Drug with drugId = ${drugId} does not exist.`);
+        }
+
+        // Convert drug so we can modify fields
+        const drug = Drug.deserialize(drugAsBytes);
+
+        // Change currentDrugState to WHOLESALER_SHIPPED;
+        drug.setStateToWholesalerShipped();
+        // update the date and time it was shipped
+        drug.wholesalerShipped = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        // Track who exactly invoked this transaction
+        drug.currentOwner = await this.getCurrentUserId(ctx);
+
+        // Update ledger
+        await ctx.stub.putState(drugId, drug.toBuffer());
+
+        // Must return a serialized drug to caller of smart contract
+        return drug.toBuffer();
+    }
+    
+
+    //____________________________________________________________________________RETAILER____________________________________________________________________________
+    /**
+     * retailerReceiveDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  retailerReceiveDrug ('drug001')
+     */
+    async retailerReceiveDrug(ctx, drugId) {
+        console.info('============= retailer receive drug ===========');
+
+        //  The retailer receives the drug after it arrives from the wholesaler
+
+        // Access Control: This transaction should only be invoked by a designated retailer
+        const userType = await this.getCurrentUserType(ctx);
+
+        if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
+            (userType !== supplyChainActors.retailer))
+            throw new Error(`Error Message from retailerReceiveDrug: This user does not have access to receive drug of id ${drugId}`);
+
+        if (!drugId || drugId.length < 1) {
+            throw new Error('Error Message from retailerReceiveDrug: drugId is required as input')
+        }
+
+        // Retrieve the current drug using key provided
+        const drugAsBytes = await ctx.stub.getState(drugId);
+        if (!drugAsBytes || drugAsBytes.length === 0) {
+            throw new Error(`Error Message from retailerReceiveDrug: Drug with drugId = ${drugId} does not exist.`);
+        }
+
+        // Convert drug so we can modify fields
+        const drug = Drug.deserialize(drugAsBytes);
+
+        // Change currentDrugState to RETAILER_RECEIVED;
+        drug.setStateToRetailerReceived();
+        // update the date and time it was received
+        drug.retailerReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        // Track who exactly invoked this transaction
+        drug.currentOwner = await this.getCurrentUserId(ctx);
+
+        // Update ledger
+        await ctx.stub.putState(drugId, drug.toBuffer());
+
+        // Must return a serialized drug to caller of smart contract
+        return drug.toBuffer();
+    }
+
+    /**
+     * retailerSellDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  retailerSellDrug ('drug001')
+     */
+    async retailerSellDrug(ctx, drugId) {
+        console.info('============= retailer sell drug ===========');
+
+        //  The retailer sells the drug to customers 
+
+        // Access Control: This transaction should only be invoked by a designated retailer
+        const userType = await this.getCurrentUserType(ctx);
+
+        if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
+            (userType !== supplyChainActors.retailer))
+            throw new Error(`Error Message from retailerSellDrug: This user does not have access to sell drug of id ${drugId}`);
+
+        if (!drugId || drugId.length < 1) {
+            throw new Error('Error Message from retailerSellDrug: drugId is required as input')
+        }
+
+        // Retrieve the current drug using key provided
+        const drugAsBytes = await ctx.stub.getState(drugId);
+        if (!drugAsBytes || drugAsBytes.length === 0) {
+            throw new Error(`Error Message from retailerSellDrug: Drug with drugId = ${drugId} does not exist.`);
+        }
+
+        // Convert drug so we can modify fields
+        const drug = Drug.deserialize(drugAsBytes);
+
+        // Change currentDrugState to DRUG_SOLD;
+        drug.setStateToDrugSold();
+        // update the date and time it was sold
+        drug.sold = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
         drug.currentOwner = await this.getCurrentUserId(ctx);
 

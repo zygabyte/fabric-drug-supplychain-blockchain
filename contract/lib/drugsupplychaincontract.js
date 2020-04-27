@@ -86,11 +86,11 @@ class SupplychainContract extends Contract {
      */
     async createDrug(ctx, args) {
         // Access Control: This transaction should only be invoked by a Manufacturer
-        let userType = await this.getCurrentUserType(ctx);
+        const userType = await this.getCurrentUserType(ctx);
 
         if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
             (userType !== supplyChainActors.manufacturer))
-            throw new Error(`This user does not have access to manufacture a drug`);
+            throw new Error('This user does not have access to manufacture a drug');
 
         const drugDetails = JSON.parse(args);
         const drugId = drugDetails.drugId;
@@ -115,7 +115,7 @@ class SupplychainContract extends Contract {
         drug.wholesalerId = drugDetails.wholesalerId;
         drug.retailerId = drugDetails.retailerId;
         drug.currentDrugState = DrugStates.DRUG_CREATED;
-        drug.created = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})
+        drug.created = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         drug.currentOwner = await this.getCurrentUserId(ctx);
         drug.manufacturerShipped = '';
         drug.distributorReceived = '';
@@ -146,6 +146,52 @@ class SupplychainContract extends Contract {
         return drug.toBuffer();
     }
 
+
+    /**
+     * manufacturerShipDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  manufacturerShipDrug ('drug001')
+     */
+    async manufacturerShipDrug(ctx, drugId) {
+        console.info('============= manufacturer ship drug ===========');
+
+        //  The manufacturer ships the drug after the production of the drug 
+
+        // Access Control: This transaction should only be invoked by a designated manufacturer
+        const userType = await this.getCurrentUserType(ctx);
+
+        if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
+            (userType !== supplyChainActors.manufacturer))
+            throw new Error(`This user does not have access to ship drug of id ${drugId}`);
+
+        if (!drugId || drugId.length < 1) {
+            throw new Error('drugId is required as input')
+        }
+
+        // Retrieve the current drug using key provided
+        const drugAsBytes = await ctx.stub.getState(drugId);
+        if (!drugAsBytes || drugAsBytes.length === 0) {
+            throw new Error(`Error Message from manufacturerShipDrug: Drug with drugId = ${drugId} does not exist.`);
+        }
+
+        // Convert drug so we can modify fields
+        const drug = Drug.deserialize(drugAsBytes);
+
+        // Change currentDrugState to MANUFACTURER_SHIPPED;
+        drug.setStateToManufacturerShipped();
+        // update the date and time it was shipped
+        drug.manufacturerShipped = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        // Track who exactly invoked this transaction
+        drug.currentOwner = await this.getCurrentUserId(ctx);
+
+        // Update ledger
+        await ctx.stub.putState(drugId, drug.toBuffer());
+
+        // Must return a serialized drug to caller of smart contract
+        return drug.toBuffer();
+    }
 
 
 

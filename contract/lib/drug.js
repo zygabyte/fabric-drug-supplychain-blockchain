@@ -27,7 +27,7 @@ const drugState = {
 class Drug extends State {
 
     constructor(obj) {
-        super(Drug.getClass(), [obj.orderId]);
+        super(Drug.getClass(), [obj.drugId]);
         Object.assign(this, obj);
     }
 
@@ -72,37 +72,41 @@ class Drug extends State {
      * Useful methods to encapsulate  Order states
      */
     setStateToDrugCreated() {
-        this.currentDrugState = drugState.DRUG_CREATED;
+        this.currentState = drugState.DRUG_CREATED;
     }
     
     setStateToManufacturerShipped() {
-        this.currentDrugState = drugState.MANUFACTURER_SHIPPED;
+        this.currentState = drugState.MANUFACTURER_SHIPPED;
     }
     
     setStateToDistributorReceived() {
-        this.currentDrugState = drugState.DISTRIBUTOR_RECEIVED;
+        this.currentState = drugState.DISTRIBUTOR_RECEIVED;
     }
     
     setStateToDistributorShipped() {
-        this.currentDrugState = drugState.DISTRIBUTOR_SHIPPED;
+        this.currentState = drugState.DISTRIBUTOR_SHIPPED;
     }
     
     setStateToWholesalerReceived() {
-        this.currentDrugState = drugState.WHOLESALER_RECEIVED;
+        this.currentState = drugState.WHOLESALER_RECEIVED;
     }
 
     
     setStateToWholesalerShipped() {
-        this.currentDrugState = drugState.WHOLESALER_SHIPPED;
+        this.currentState = drugState.WHOLESALER_SHIPPED;
     }
     
     setStateToRetailerReceived() {
-        this.currentDrugState = drugState.RETAILER_RECEIVED;
+        this.currentState = drugState.RETAILER_RECEIVED;
     }
 
     
     setStateToDrugSold() {
-        this.currentDrugState = drugState.DRUG_SOLD;
+        this.currentState = drugState.DRUG_SOLD;
+    }
+
+    getCurrentState(){
+        return this.currentState;
     }
 
     static fromBuffer(buffer) {
@@ -130,7 +134,7 @@ class Drug extends State {
     }
 
     static getClass() {
-        return 'org.supplychainnet.drug';
+        return 'org.drugsupplychainnet.drug';
     }
 }
 

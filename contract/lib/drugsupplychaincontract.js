@@ -22,7 +22,7 @@ const DRUG_ID_NOT_FOUND = 102;
 /**
  * A custom context provides easy access to list of all products
  */
-class SupplychainContext extends Context {
+class DrugSupplyChainContext extends Context {
     constructor() {
         super();
     }
@@ -31,18 +31,18 @@ class SupplychainContext extends Context {
 /**
  * Define product smart contract by extending Fabric Contract class
  */
-class SupplychainContract extends Contract {
+class DrugSupplyChainContract extends Contract {
 
     constructor() {
         // Unique namespace when multiple contracts per chaincode file
-        super('org.supplychainnet.contract');
+        super('org.drugsupplychainnet.contract');
     }
 
     /**
      * Define a custom context for drug
      */
     createContext() {
-        return new SupplychainContext();
+        return new DrugSupplyChainContext();
     }
 
     /**
@@ -102,21 +102,23 @@ class SupplychainContract extends Contract {
         if (drugAsBytes && drugAsBytes.length > 0) {
             throw new Error(`Error Message from createDrug: Drug with drugId = ${drugId} already exists.`);
         }
+        
+        const userId = await this.getCurrentUserId(ctx);
 
         // Create a new Order object
         let drug = Drug.createInstance(drugId);
         drug.drugName = drugDetails.drugName;
-        drug.price = drugDetails.price.toString();
-        drug.quantity = drugDetails.quantity.toString();
+        drug.price = drugDetails.price;
+        drug.quantity = drugDetails.quantity;
         drug.expiryDate = drugDetails.expiryDate;
         drug.prescription = drugDetails.prescription;
-        drug.manufacturerId = drugDetails.manufacturerId;
-        drug.distributorId = drugDetails.distributorId;
-        drug.wholesalerId = drugDetails.wholesalerId;
-        drug.retailerId = drugDetails.retailerId;
-        drug.currentDrugState = DrugStates.DRUG_CREATED;
+        drug.manufacturerId = userId;
+        drug.distributorId = '';
+        drug.wholesalerId = '';
+        drug.retailerId = '';
+        drug.setStateToDrugCreated();
         drug.created = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
         drug.manufacturerShipped = '';
         drug.distributorReceived = '';
         drug.distributorShipped = '';
@@ -229,12 +231,15 @@ class SupplychainContract extends Contract {
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
 
+        const userId = await this.getCurrentUserId(ctx);
+
         // Change currentDrugState to DISTRIBUTOR_RECEIVED;
         drug.setStateToDistributorReceived();
         // update the date and time it was received
         drug.distributorReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.distributorId = userId;
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -323,12 +328,15 @@ class SupplychainContract extends Contract {
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
 
+        const userId = await this.getCurrentUserId(ctx);
+
         // Change currentDrugState to WHOLESALER_RECEIVED;
         drug.setStateToWholesalerReceived();
         // update the date and time it was received
         drug.wholesalerReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.wholesalerId = userId;
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -416,13 +424,15 @@ class SupplychainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
+        const userId = await this.getCurrentUserId(ctx);
 
         // Change currentDrugState to RETAILER_RECEIVED;
         drug.setStateToRetailerReceived();
         // update the date and time it was received
         drug.retailerReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.retailerId = userId;
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -480,8 +490,112 @@ class SupplychainContract extends Contract {
 
 
 
+    /**
+     * getDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  getDrug ('drug001')
+     *
+     */
+    async getDrug(ctx, drugId) {
+        console.info('============= get drug ===========');
+
+        //  This is called for query a particular drug by the Id, but note that drugs that do not have the state of RETAILER_RECEIVED (i.e. currently in the hands of the retailer) cannot be returned
+
+        if (!drugId || drugId.length < 1) {
+            throw new Error('drugId is required as input')
+        }
+
+        const drugAsBytes = await ctx.stub.getState(drugId);
+
+        //  Set an event (irrespective of whether the order existed or not)
+        // define and set EVENT_TYPE
+        let queryEvent = {
+            type: EVENT_TYPE,
+            orderId: drugId,
+            desc: "Query Order was executed for " + drugId
+        };
+        await ctx.stub.setEvent(EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
+
+        if (!drugAsBytes || drugAsBytes.length === 0) {
+            throw new Error(`Error Message from queryOrder: Order with orderId = ${drugId} does not exist.`);
+        }
+
+        // Convert drug so we can modify fields
+        const drug = Drug.deserialize(drugAsBytes);
+
+        // Access Control: This transaction should only be invoked by a designated retailer
+        const userType = await this.getCurrentUserType(ctx);
+
+        if (userType === supplyChainActors.consumer && drug.getCurrentState() !== DrugStates.RETAILER_RECEIVED)
+            throw new Error('Error Message from getDrug: This consumer user cannot query this drug as it does not yet belong to the retailer');
+
+        // Return a serialized order to caller of smart contract
+        return drug.toBuffer();
+    }
 
 
+    /**
+     * getDrug
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  getDrug ('drug001')
+     *
+     */
+    async getAllDrugs(ctx) {
+        console.info('============= get all drugs ===========');
+
+        //  This is called for query all drugs
+
+        const userType = await this.getCurrentUserType(ctx);
+
+        let queryString = {
+            'selector': {}  //  no filter;  return all all drugs -> for admins
+        }
+        
+        if (userType === supplyChainActors.consumer){
+            queryString = {
+                'selector': {'sold': DrugStates.RETAILER_RECEIVED} // for customers, they can see only drugs that currently is in the hands of the retailer (i.e. yet to be sold)
+            }
+        }
+
+        console.log("Info Message from getAllDrugs: queryString = ", queryString);
+
+        const iterator = await ctx.stub.getQueryResult(JSON.stringify(queryString));
+
+        console.log("Info Message from getAllDrugs: iterator = ", iterator);
+
+        const allDrugs = [];
+
+        while (true) {
+            const drug = await iterator.next();
+
+            if (drug.value && drug.value.value.toString()) {
+                console.log(drug.value.value.toString('utf8'));
+
+                // const Key = drug.value.key;
+                let Record;
+                try {
+                    Record = JSON.parse(drug.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    Record = drug.value.value.toString('utf8');
+                }
+                // allDrugs.push({ Key, Record });
+                allDrugs.push(Record); // push to all drugs
+
+                console.log("Info Message from getAllDrugs: Record = ", Record);
+            }
+            if (drug.done) {
+                console.log('end of data');
+                await iterator.close();
+                console.info(allDrugs);
+                return JSON.stringify(allDrugs);
+            }
+        }
+    }
 
 
     //____________________________________________________________________________UTILITIES____________________________________________________________________________
@@ -497,7 +611,7 @@ class SupplychainContract extends Contract {
 
         //  check user id;  if admin, return type = admin;
         //  else return value set for attribute "type" in certificate;
-        if (userid === "admin") {
+        if (userid === supplyChainActors.admin) {
             console.log('user id ' + userid);
             return userid;
         }

@@ -9,8 +9,8 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const utils = require('./utils.js');
-const supplychainRoute = require('./supplychain.js');
+const utils = require('./utils');
+const supplyChainRoutes = require('./supplychainroutes');
 
 
 // Start up the Express functions to listen on server side
@@ -24,7 +24,7 @@ app.use(function (req, res, next) {
 app.use(cors());
 
 //  routes defined
-app.use('/api', supplychainRoute);
+app.use('/api', supplyChainRoutes);
 
 app.get('/ping', (req, res) => {
     res.send('Response from Generic Supply Chain backend server');

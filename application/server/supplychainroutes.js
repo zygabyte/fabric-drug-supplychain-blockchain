@@ -260,6 +260,162 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').put(function (request, respo
 
 
 
+////////////////////////////////// User Management APIs ///////////////////////////////////////
+
+//  Purpose:    POST api to register new users with Hyperledger Fabric CA;
+//  Note:       After registration, users have to enroll to get certificates
+//              to be able to submit transactions to Hyperledger Fabric Peer.
+//  Input:      request.body = {username (string), password (string), usertype (string)}
+//              usertype = {"admin", "manufacturer", "distributor", "wholesaler", "retailer", "customer"}
+//              An admin identity is required to make this call to CA and
+//              should be passed in authorization header.
+//  Output:     pwd; If password was "", a generated password is returned in response
+//  Usage 1:    "smith", "smithpw", "manufacturer"
+//  Usage 2:    "smith", "",        "manufacturer"
+
+supplyChainRouter.route('users/register').post(function (request, response) {
+    
+    const userId = request.body.userid;
+    const userPwd = request.body.password;
+    const userType = request.body.usertype;
+    
+    try {
+        //  only admin can call this api;  get admin username and pwd from request header
+        getUsernamePassword(request)
+            .then(request => {
+                //  1.  No need to call setUserContext
+                //  Fabric CA client is used for register-user;
+                //  2.  In this demo application UI, only admin sees the page "Manage Users"
+                //  So, it is assumed that only the admin has access to this api
+                //  users/register can only be called by a user with admin privileges.
+
+                utils.registerUser(userId, userPwd, userType, request.username).
+                then((result) => {
+                    response.status(STATUS_SUCCESS);
+                    response.send(result);
+                }, (error) => {
+                    response.status(STATUS_CLIENT_ERROR);
+                    response.send(utils.prepareErrorResponse(error, STATUS_CLIENT_ERROR,
+                        "User, " + userId + " could not be registered. "
+                        + "Verify if calling identity has admin privileges."));
+                });
+            }, error => {
+                response.status(STATUS_CLIENT_ERROR);
+                response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+                    "Invalid header;  User, " + userId + " could not be registered."));
+            });
+    } catch (error) {
+        response.status(STATUS_SERVER_ERROR);
+        response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            "Internal server error; User, " + userId + " could not be registered."));
+    }
+});
+
+//  Purpose:    To enroll registered users with Fabric CA;
+//  A call to enrollUser to Fabric CA generates (and returns) certificates for the given (registered) user;
+//  These certificates are need for subsequent calls to Fabric Peers.
+//  Input: { userid, password } in header and request.body.usertype
+//  Output:  Certificate on successful enrollment
+//  Usage:  "smith", "smithpw", "manufacturer"
+supplyChainRouter.route('users/enroll').post(function (request, response) {
+    let userType = request.body.usertype;
+    //  retrieve username, password of the called from authorization header
+    getUsernamePassword(request).then(request => {
+        utils.enrollUser(request.username, request.password, userType).then(result => {
+            response.status(STATUS_SUCCESS);
+            response.send(result);
+        }, error => {
+            response.status(STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(error, STATUS_CLIENT_ERROR,
+                "User, " + request.username + " could not be enrolled. Check that user is registered."));
+        });
+    }, error => {
+        response.status(STATUS_CLIENT_ERROR);
+        response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+            "Invalid header;  User, " + request.username + " could not be enrolled."));
+    });
+});
+
+supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response) {
+    //  only admin can call this api;  But this is not verified here
+    //  get admin username and pwd from request header
+    //
+    getUsernamePassword(request)
+        .then(request => {
+            let userId = request.params.id;
+            utils.isUserEnrolled(userId).then(result => {
+                response.status(STATUS_SUCCESS);
+                response.send(result);
+            }, error => {
+                response.status(STATUS_CLIENT_ERROR);
+                response.send(utils.prepareErrorResponse(error, STATUS_CLIENT_ERROR,
+                    "Error checking enrollment for user, " + request.params.id));
+            });
+        }, error => {
+            response.status(STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+                "Invalid header; Error checking enrollment for user, " + request.params.id));
+        });
+})
+
+//  Purpose: Get list of all users
+//  Output:  array of all registered users
+//  Usage:  ""
+supplyChainRouter.route('/users').get(function (request, response) {
+    getUsernamePassword(request)
+        .then(request => {
+            utils.getAllUsers(request.username).then((result) => {
+                response.status(STATUS_SUCCESS);
+                response.send(result);
+            }, (error) => {
+                response.status(STATUS_SERVER_ERROR);
+                response.send(utils.prepareErrorResponse (error, STATUS_SERVER_ERROR,
+                    "Problem getting list of users."));
+            });
+        }, ((error) => {
+            response.status(STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+                "Invalid header;  User, " + request.username + " could not be enrolled."));
+        }));
+});
+
+supplyChainRouter.route('/users/:id').get(function (request, response) {
+    //  Get admin username and pwd from request header
+    //  Only admin can call this api; this is not verified here;
+    //  Possible future enhancement
+    
+    const userId = request.params.id;
+    getUsernamePassword(request)
+        .then(request => {
+            utils.isUserEnrolled(userId).then(isEnrolled => {
+                if (isEnrolled === true) {
+                    utils.getUser(userId, request.username).then((user) => {
+                        response.status(STATUS_SUCCESS);
+                        response.send(user);
+                    }, (error) => {
+                        response.status(STATUS_SERVER_ERROR);
+                        response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+                            "Could not get user details for user, " + request.params.id));
+                    });
+                } else {
+                    let error = {};
+                    response.status(STATUS_CLIENT_ERROR);
+                    response.send(utils.prepareErrorResponse(error, USER_NOT_ENROLLED,
+                        "Verify if the user is registered and enrolled."));
+                }
+            }, error => {
+                response.status(STATUS_SERVER_ERROR);
+                response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+                    "Problem checking for user enrollment."));
+            });
+        }, ((error) => {
+            response.status(STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+                "Invalid header;  User, " + userId + " could not be enrolled."));
+        }));
+});
+
+
 //____________________________________________________________________________UTILITIES____________________________________________________________________________
 function logDrugDetails(drug){
     console.log(`drug ${drug.drugId} : price = ${drug.price}, quantity = ${drug.quantity}, expiryDate = ${drug.expiryDate}, 

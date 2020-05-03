@@ -33,8 +33,8 @@ app.get('/ping', (req, res) => {
 async function main() {
 
     try {
-        await utils.connectGatewayFromConfig ();
-        await utils.events();
+        await utils.connectGatewayFromConfig (); // first config the gateway
+        await utils.events(); // then connect to event hub
     } catch (error) {
         return console.log ('Error in connecting to Fabric network. ', error);
     }

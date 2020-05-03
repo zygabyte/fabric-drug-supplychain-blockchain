@@ -27,7 +27,7 @@ const DRUG_NOT_FOUND = 2000;
 async function getUsernamePassword(request) {
     // check for basic auth header
     if (!request.headers.authorization || request.headers.authorization.indexOf('Basic ') === -1) {
-        return new Promise().reject('Missing Authorization Header');  //  status 401
+        return Promise.reject('Missing Authorization Header');  //  status 401
     }
 
     // get auth credentials
@@ -44,7 +44,7 @@ async function getUsernamePassword(request) {
     //  to pick up certificate from the local wallet.
 
     if (!username || !password) {
-        return new Promise().reject('Invalid Authentication Credentials');  //  status 401
+        return Promise.reject('Invalid Authentication Credentials');  //  status 401
     }
 
     // attach username and password to request object
@@ -282,26 +282,26 @@ supplyChainRouter.route('users/register').post(function (request, response) {
     try {
         //  only admin can call this api;  get admin username and pwd from request header
         getUsernamePassword(request)
-            .then(request => {
+            .then(newRequest => {
                 //  1.  No need to call setUserContext
                 //  Fabric CA client is used for register-user;
                 //  2.  In this demo application UI, only admin sees the page "Manage Users"
                 //  So, it is assumed that only the admin has access to this api
                 //  users/register can only be called by a user with admin privileges.
 
-                utils.registerUser(userId, userPwd, userType, request.username).
-                then((result) => {
-                    response.status(STATUS_SUCCESS);
-                    response.send(result);
-                }, (error) => {
-                    response.status(STATUS_CLIENT_ERROR);
-                    response.send(utils.prepareErrorResponse(error, STATUS_CLIENT_ERROR,
-                        "User, " + userId + " could not be registered. "
-                        + "Verify if calling identity has admin privileges."));
-                });
-            }, error => {
+                utils.registerUser(userId, userPwd, userType, newRequest.username)
+                    .then((result) => {
+                        response.status(STATUS_SUCCESS);
+                        response.send(result);
+                    }, (registerError) => {
+                        response.status(STATUS_CLIENT_ERROR);
+                        response.send(utils.prepareErrorResponse(registerError, STATUS_CLIENT_ERROR,
+                            "User, " + userId + " could not be registered. "
+                            + "Verify if calling identity has admin privileges."));
+                    });
+            }, usernamePassErr => {
                 response.status(STATUS_CLIENT_ERROR);
-                response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+                response.send(utils.prepareErrorResponse(usernamePassErr, INVALID_HEADER,
                     "Invalid header;  User, " + userId + " could not be registered."));
             });
     } catch (error) {
@@ -319,20 +319,22 @@ supplyChainRouter.route('users/register').post(function (request, response) {
 //  Usage:  "smith", "smithpw", "manufacturer"
 supplyChainRouter.route('users/enroll').post(function (request, response) {
     let userType = request.body.usertype;
+    
     //  retrieve username, password of the called from authorization header
-    getUsernamePassword(request).then(request => {
-        utils.enrollUser(request.username, request.password, userType).then(result => {
+    getUsernamePassword(request).then(newRequest => {
+        utils.enrollUser(newRequest.username, newRequest.password, userType).then(enrolledUser => {
             response.status(STATUS_SUCCESS);
-            response.send(result);
-        }, error => {
+            response.send(enrolledUser);
+        }, enrolledError => {
             response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_CLIENT_ERROR,
-                "User, " + request.username + " could not be enrolled. Check that user is registered."));
+            response.send(utils.prepareErrorResponse(enrolledError, STATUS_CLIENT_ERROR,
+                "User, " + newRequest.username + " could not be enrolled. Check that user is registered."));
         });
-    }, error => {
+    }, usernamePassErr => {
         response.status(STATUS_CLIENT_ERROR);
-        response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
-            "Invalid header;  User, " + request.username + " could not be enrolled."));
+        response.send(utils.prepareErrorResponse(usernamePassErr, INVALID_HEADER,
+            "Invalid header;  User, " + request.username + " could not be enrolled.")); // this is made possible because the request object property of user name and password has been added (in getUsernamePassword).
+        // hence we can access it because it points to the same reference in memory
     });
 });
 
@@ -340,21 +342,22 @@ supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response
     //  only admin can call this api;  But this is not verified here
     //  get admin username and pwd from request header
     //
+    let userId = request.params.id;
+
     getUsernamePassword(request)
-        .then(request => {
-            let userId = request.params.id;
-            utils.isUserEnrolled(userId).then(result => {
+        .then(newRequest => {
+            utils.isUserEnrolled(userId).then(isEnrolled => {
                 response.status(STATUS_SUCCESS);
-                response.send(result);
-            }, error => {
+                response.send(isEnrolled);
+            }, enrolledError => {
                 response.status(STATUS_CLIENT_ERROR);
-                response.send(utils.prepareErrorResponse(error, STATUS_CLIENT_ERROR,
-                    "Error checking enrollment for user, " + request.params.id));
+                response.send(utils.prepareErrorResponse(enrolledError, STATUS_CLIENT_ERROR,
+                    "Error checking enrollment for user, " + userId));
             });
-        }, error => {
+        }, usernamePwdErr => {
             response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
-                "Invalid header; Error checking enrollment for user, " + request.params.id));
+            response.send(utils.prepareErrorResponse(usernamePwdErr, INVALID_HEADER,
+                "Invalid header; Error checking enrollment for user, " + userId));
         });
 })
 
@@ -363,20 +366,20 @@ supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response
 //  Usage:  ""
 supplyChainRouter.route('/users').get(function (request, response) {
     getUsernamePassword(request)
-        .then(request => {
-            utils.getAllUsers(request.username).then((result) => {
+        .then(newRequest => {
+            utils.getAllUsers(newRequest.username).then((allUsers) => {
                 response.status(STATUS_SUCCESS);
-                response.send(result);
-            }, (error) => {
+                response.send(allUsers);
+            }, (allUsersErr) => {
                 response.status(STATUS_SERVER_ERROR);
-                response.send(utils.prepareErrorResponse (error, STATUS_SERVER_ERROR,
+                response.send(utils.prepareErrorResponse (allUsersErr, STATUS_SERVER_ERROR,
                     "Problem getting list of users."));
             });
-        }, ((error) => {
+        }, (reqError) => {
             response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+            response.send(utils.prepareErrorResponse(reqError, INVALID_HEADER,
                 "Invalid header;  User, " + request.username + " could not be enrolled."));
-        }));
+        });
 });
 
 supplyChainRouter.route('/users/:id').get(function (request, response) {
@@ -385,17 +388,18 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
     //  Possible future enhancement
     
     const userId = request.params.id;
+    
     getUsernamePassword(request)
-        .then(request => {
+        .then(newRequest => {
             utils.isUserEnrolled(userId).then(isEnrolled => {
                 if (isEnrolled === true) {
-                    utils.getUser(userId, request.username).then((user) => {
+                    utils.getUser(userId, newRequest.username).then((user) => {
                         response.status(STATUS_SUCCESS);
                         response.send(user);
-                    }, (error) => {
+                    }, (userErr) => {
                         response.status(STATUS_SERVER_ERROR);
-                        response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
-                            "Could not get user details for user, " + request.params.id));
+                        response.send(utils.prepareErrorResponse(userErr, STATUS_SERVER_ERROR,
+                            "Could not get user details for user, " + newRequest.params.id));
                     });
                 } else {
                     let error = {};
@@ -403,16 +407,16 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
                     response.send(utils.prepareErrorResponse(error, USER_NOT_ENROLLED,
                         "Verify if the user is registered and enrolled."));
                 }
-            }, error => {
+            }, (enrolledErr) => {
                 response.status(STATUS_SERVER_ERROR);
-                response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+                response.send(utils.prepareErrorResponse(enrolledErr, STATUS_SERVER_ERROR,
                     "Problem checking for user enrollment."));
             });
-        }, ((error) => {
+        }, (reqError) => {
             response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(error, INVALID_HEADER,
+            response.send(utils.prepareErrorResponse(reqError, INVALID_HEADER,
                 "Invalid header;  User, " + userId + " could not be enrolled."));
-        }));
+        });
 });
 
 

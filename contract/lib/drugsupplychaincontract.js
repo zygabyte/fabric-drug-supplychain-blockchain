@@ -557,7 +557,7 @@ class DrugSupplyChainContract extends Contract {
         
         if (userType === supplyChainActors.consumer){
             queryString = {
-                'selector': {'sold': DrugStates.RETAILER_RECEIVED} // for customers, they can see only drugs that currently is in the hands of the retailer (i.e. yet to be sold)
+                'selector': {'currentState': DrugStates.RETAILER_RECEIVED} // for customers, they can see only drugs that currently is in the hands of the retailer (i.e. yet to be sold)
             }
         }
 

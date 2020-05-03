@@ -11,18 +11,9 @@ const supplyChainRouter = express.Router();
 // Bring key classes into scope, most importantly Fabric SDK network class
 const Drug = require('../../contract/lib/drug');
 
-// http status codes
-const STATUS_SUCCESS = 200;
-const STATUS_CLIENT_ERROR = 400;
-const STATUS_SERVER_ERROR = 500;
-
-//  USER Management Errors
-const USER_NOT_ENROLLED = 1000;
-const INVALID_HEADER = 1001;
-
-//  application specific errors
-const SUCCESS = 0;
-const DRUG_NOT_FOUND = 2000;
+const httpStatusCodes = require('./constants').HTTP_STATUS_CODES; // http status codes
+const userStatusCodes = require('./constants').USER_STATUS_CODES; //  USER Management Errors
+const appCodes = require('./constants').APP_CODES; //  application specific errors
 
 async function getUsernamePassword(request) {
     // check for basic auth header
@@ -88,11 +79,11 @@ supplyChainRouter.route('/drugs').get(function (request, response) {
         .then((queryDrugsResponse) => {
             //  response is already a string;  not a buffer
             let drugs = queryDrugsResponse;
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drugs);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem getting the list of drugs."));
         });
 });
@@ -105,11 +96,11 @@ supplyChainRouter.route('/drugs/:id').get(function (request, response) {
             // process response
             let drug = Drug.fromBuffer(queryDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, DRUG_NOT_FOUND,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 'Drug id, ' + request.params.id +
                 ' does not exist or the user does not have access to drug details at this time.'));
         });
@@ -126,11 +117,11 @@ supplyChainRouter.route('/drugs').post(function (request, response) {
             console.log('\nProcess createDrug transaction.');
             let drug = Drug.fromBuffer(result);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem manufacturing the drug."));
         });
 });
@@ -143,11 +134,11 @@ supplyChainRouter.route('/drugs/manufacturer/ship/:id').put(function (request, r
             console.log('Process manufacturerShipDrug transaction.');
             let drug = Drug.fromBuffer(manShipDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the manufacturer shipping the drug," + request.params.id));
         });
 });
@@ -161,11 +152,11 @@ supplyChainRouter.route('/drugs/distributor/receive/:id').put(function (request,
             console.log('Process distributorReceiveDrug transaction.');
             let drug = Drug.fromBuffer(disReceiveDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the distributor receiving the drug," + request.params.id));
         });
 });
@@ -178,11 +169,11 @@ supplyChainRouter.route('/drugs/distributor/ship/:id').put(function (request, re
             console.log('Process distributorShipDrug transaction.');
             let drug = Drug.fromBuffer(disShipDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the distributor shipping the drug," + request.params.id));
         });
 });
@@ -196,11 +187,11 @@ supplyChainRouter.route('/drugs/wholesaler/receive/:id').put(function (request, 
             console.log('Process wholesalerReceiveDrug transaction.');
             let drug = Drug.fromBuffer(wholeReceiveDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the wholesaler receiving the drug," + request.params.id));
         });
 });
@@ -213,11 +204,11 @@ supplyChainRouter.route('/drugs/wholesaler/ship/:id').put(function (request, res
             console.log('Process wholesalerShipDrug transaction.');
             let drug = Drug.fromBuffer(wholeShipDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the wholesaler shipping the drug," + request.params.id));
         });
 });
@@ -232,11 +223,11 @@ supplyChainRouter.route('/drugs/retailer/receive/:id').put(function (request, re
             console.log('Process retailerReceiveDrug transaction.');
             let drug = Drug.fromBuffer(retReceiveDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the retailer receiving the drug," + request.params.id));
         });
 });
@@ -249,11 +240,11 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').put(function (request, respo
             console.log('Process retailerSellDrug transaction.');
             let drug = Drug.fromBuffer(retSellDrugResponse);
             logDrugDetails(drug);
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(drug);
         }, (error) => {
-            response.status(STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
                 "There was a problem in the retailer selling the drug," + request.params.id));
         });
 });
@@ -291,22 +282,22 @@ supplyChainRouter.route('users/register').post(function (request, response) {
 
                 utils.registerUser(userId, userPwd, userType, newRequest.username)
                     .then((result) => {
-                        response.status(STATUS_SUCCESS);
+                        response.status(httpStatusCodes.STATUS_SUCCESS);
                         response.send(result);
                     }, (registerError) => {
-                        response.status(STATUS_CLIENT_ERROR);
-                        response.send(utils.prepareErrorResponse(registerError, STATUS_CLIENT_ERROR,
+                        response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+                        response.send(utils.prepareErrorResponse(registerError, httpStatusCodes.STATUS_CLIENT_ERROR,
                             "User, " + userId + " could not be registered. "
                             + "Verify if calling identity has admin privileges."));
                     });
             }, usernamePassErr => {
-                response.status(STATUS_CLIENT_ERROR);
-                response.send(utils.prepareErrorResponse(usernamePassErr, INVALID_HEADER,
+                response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+                response.send(utils.prepareErrorResponse(usernamePassErr, userStatusCodes.INVALID_HEADER,
                     "Invalid header;  User, " + userId + " could not be registered."));
             });
     } catch (error) {
-        response.status(STATUS_SERVER_ERROR);
-        response.send(utils.prepareErrorResponse(error, STATUS_SERVER_ERROR,
+        response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+        response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
             "Internal server error; User, " + userId + " could not be registered."));
     }
 });
@@ -323,16 +314,16 @@ supplyChainRouter.route('users/enroll').post(function (request, response) {
     //  retrieve username, password of the called from authorization header
     getUsernamePassword(request).then(newRequest => {
         utils.enrollUser(newRequest.username, newRequest.password, userType).then(enrolledUser => {
-            response.status(STATUS_SUCCESS);
+            response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send(enrolledUser);
         }, enrolledError => {
-            response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(enrolledError, STATUS_CLIENT_ERROR,
+            response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(enrolledError, httpStatusCodes.STATUS_CLIENT_ERROR,
                 "User, " + newRequest.username + " could not be enrolled. Check that user is registered."));
         });
     }, usernamePassErr => {
-        response.status(STATUS_CLIENT_ERROR);
-        response.send(utils.prepareErrorResponse(usernamePassErr, INVALID_HEADER,
+        response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+        response.send(utils.prepareErrorResponse(usernamePassErr, userStatusCodes.INVALID_HEADER,
             "Invalid header;  User, " + request.username + " could not be enrolled.")); // this is made possible because the request object property of user name and password has been added (in getUsernamePassword).
         // hence we can access it because it points to the same reference in memory
     });
@@ -347,16 +338,16 @@ supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response
     getUsernamePassword(request)
         .then(newRequest => {
             utils.isUserEnrolled(userId).then(isEnrolled => {
-                response.status(STATUS_SUCCESS);
+                response.status(httpStatusCodes.STATUS_SUCCESS);
                 response.send(isEnrolled);
             }, enrolledError => {
-                response.status(STATUS_CLIENT_ERROR);
-                response.send(utils.prepareErrorResponse(enrolledError, STATUS_CLIENT_ERROR,
+                response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+                response.send(utils.prepareErrorResponse(enrolledError, httpStatusCodes.STATUS_CLIENT_ERROR,
                     "Error checking enrollment for user, " + userId));
             });
         }, usernamePwdErr => {
-            response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(usernamePwdErr, INVALID_HEADER,
+            response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(usernamePwdErr, userStatusCodes.INVALID_HEADER,
                 "Invalid header; Error checking enrollment for user, " + userId));
         });
 })
@@ -368,16 +359,16 @@ supplyChainRouter.route('/users').get(function (request, response) {
     getUsernamePassword(request)
         .then(newRequest => {
             utils.getAllUsers(newRequest.username).then((allUsers) => {
-                response.status(STATUS_SUCCESS);
+                response.status(httpStatusCodes.STATUS_SUCCESS);
                 response.send(allUsers);
             }, (allUsersErr) => {
-                response.status(STATUS_SERVER_ERROR);
-                response.send(utils.prepareErrorResponse (allUsersErr, STATUS_SERVER_ERROR,
+                response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+                response.send(utils.prepareErrorResponse (allUsersErr, httpStatusCodes.STATUS_SERVER_ERROR,
                     "Problem getting list of users."));
             });
         }, (reqError) => {
-            response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(reqError, INVALID_HEADER,
+            response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(reqError, userStatusCodes.INVALID_HEADER,
                 "Invalid header;  User, " + request.username + " could not be enrolled."));
         });
 });
@@ -394,27 +385,27 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
             utils.isUserEnrolled(userId).then(isEnrolled => {
                 if (isEnrolled === true) {
                     utils.getUser(userId, newRequest.username).then((user) => {
-                        response.status(STATUS_SUCCESS);
+                        response.status(httpStatusCodes.STATUS_SUCCESS);
                         response.send(user);
                     }, (userErr) => {
-                        response.status(STATUS_SERVER_ERROR);
-                        response.send(utils.prepareErrorResponse(userErr, STATUS_SERVER_ERROR,
+                        response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+                        response.send(utils.prepareErrorResponse(userErr, httpStatusCodes.STATUS_SERVER_ERROR,
                             "Could not get user details for user, " + newRequest.params.id));
                     });
                 } else {
                     let error = {};
-                    response.status(STATUS_CLIENT_ERROR);
-                    response.send(utils.prepareErrorResponse(error, USER_NOT_ENROLLED,
+                    response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+                    response.send(utils.prepareErrorResponse(error, userStatusCodes.USER_NOT_ENROLLED,
                         "Verify if the user is registered and enrolled."));
                 }
             }, (enrolledErr) => {
-                response.status(STATUS_SERVER_ERROR);
-                response.send(utils.prepareErrorResponse(enrolledErr, STATUS_SERVER_ERROR,
+                response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+                response.send(utils.prepareErrorResponse(enrolledErr, httpStatusCodes.STATUS_SERVER_ERROR,
                     "Problem checking for user enrollment."));
             });
         }, (reqError) => {
-            response.status(STATUS_CLIENT_ERROR);
-            response.send(utils.prepareErrorResponse(reqError, INVALID_HEADER,
+            response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
+            response.send(utils.prepareErrorResponse(reqError, userStatusCodes.INVALID_HEADER,
                 "Invalid header;  User, " + userId + " could not be enrolled."));
         });
 });

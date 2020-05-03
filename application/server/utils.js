@@ -20,9 +20,10 @@ var wallet; // ../../gateway/local/gen_local_wallet   -> it eventually stores th
 var bLocalHost; // true
 var fabricConnProfile;  // ../../gateway/local/fabric_connection.json   -> the fabric connection profile but parsed as a json object
 var orgMspId;  // Org1MSP
-const EVENT_TYPE = "bcpocevent";  //  HLFabric EVENT
 
-const SUCCESS = 0;
+const smartContractEvents = require('./constants').SMART_CONTRACT_EVENTS; //  HLFabric EVENT
+const defaultUser = require('./constants').DEFAULT_USER; //  default admin user
+
 const utils = {};
 
 // Main program function
@@ -78,9 +79,9 @@ utils.connectGatewayFromConfig = async () => {
         // Parse the connection profile. This would be the path to the file downloaded
         // from the IBM Blockchain Platform operational console.
         const ccpPath = path.resolve(__dirname, configdata["connection_profile_filename"]);
-        var defaultUserId = process.env.FABRIC_USER_ID || "admin"; // the default which is the admin (for local)
-        var defaultPassword = process.env.FABRIC_USER_SECRET || "adminpw";
-        var defaultUserType = process.env.FABRIC_USER_TYPE || "admin";
+        var defaultUserId = process.env.FABRIC_USER_ID || defaultUser.userId; // the default which is the admin (for local)
+        var defaultPassword = process.env.FABRIC_USER_SECRET || defaultUser.userSecret;
+        var defaultUserType = process.env.FABRIC_USER_TYPE || defaultUser.userType;
         console.log('user: ' + defaultUserId + ", defaultPassword: ", defaultPassword + ", defaultUserType: ", defaultUserType);
 
         // Load connection profile; will be used to locate a gateway
@@ -155,7 +156,7 @@ utils.events = async () => {
                // options:
                {startBlock:23, endBlock:30, unregister: true, disconnect: true}
         */
-        var regid = channel_event_hub.registerChaincodeEvent(configdata["smart_contract_name"], EVENT_TYPE,
+        var regid = channel_event_hub.registerChaincodeEvent(configdata["smart_contract_name"], smartContractEvents.EVENT_TYPE,
             (event, block_num, txnid, status) => {
                 // This callback will be called when there is a chaincode event name
                 // within a block that will match on the second parameter in the registration
@@ -337,7 +338,7 @@ utils.getUser = async (userid, adminIdentity) => {
     let result = {"id": userid};
 
     // for admin, usertype is "admin";
-    if (userid == "admin") {
+    if (userid === defaultUser.userId) {
         result.usertype = userid;
     } else { // look through user attributes for "usertype"
         let j = 0;
@@ -371,13 +372,13 @@ utils.getAllUsers = async (adminIdentity) => {
         tmp.id = identities[i].id;
         tmp.usertype = "";
 
-        if (tmp.id == "admin")
+        if (tmp.id === defaultUser.userId)
             tmp.usertype = tmp.id;
         else {
             attributes = identities[i].attrs;
             // look through all attributes for one called "usertype"
             for (var j = 0; j < attributes.length; j++)
-                if (attributes[j].name == "usertype") {
+                if (attributes[j].name === "usertype") {
                     tmp.usertype = attributes[j].value;
                     break;
                 }

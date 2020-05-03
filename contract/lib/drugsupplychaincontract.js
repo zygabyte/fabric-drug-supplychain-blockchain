@@ -10,14 +10,8 @@ const { Contract, Context } = require('fabric-contract-api');
 // drug supplychainnet specific classes
 const Drug = require('./drug');
 const DrugStates = require('./drug').drugStates;
-const supplyChainActors = require('./supplychainactors');
-
-//  EVENT
-const EVENT_TYPE = "bcpocevent";
-
-//  Error codes
-const DUPLICATE_DRUG_ID = 101;
-const DRUG_ID_NOT_FOUND = 102;
+const supplyChainActors = require('../../application/server/constants').SUPPLY_CHAIN_ACTORS;
+const smartContractEvents = require('../../application/server/constants').SMART_CONTRACT_EVENTS;
 
 /**
  * A custom context provides easy access to list of all products
@@ -135,7 +129,7 @@ class DrugSupplyChainContract extends Contract {
         event_obj.event_type = "createDrug";   //  add the field "event_type" for the event to be processed
 
         try {
-            await ctx.stub.setEvent(EVENT_TYPE, event_obj.toBuffer());
+            await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, event_obj.toBuffer());
         }
         catch (error) {
             console.log("Error in sending event");
@@ -512,11 +506,11 @@ class DrugSupplyChainContract extends Contract {
         //  Set an event (irrespective of whether the order existed or not)
         // define and set EVENT_TYPE
         let queryEvent = {
-            type: EVENT_TYPE,
+            type: smartContractEvents.EVENT_TYPE,
             orderId: drugId,
             desc: "Query Order was executed for " + drugId
         };
-        await ctx.stub.setEvent(EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
+        await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
 
         if (!drugAsBytes || drugAsBytes.length === 0) {
             throw new Error(`Error Message from queryOrder: Order with orderId = ${drugId} does not exist.`);
@@ -557,7 +551,7 @@ class DrugSupplyChainContract extends Contract {
         
         if (userType === supplyChainActors.consumer){
             queryString = {
-                'selector': {'sold': DrugStates.RETAILER_RECEIVED} // for customers, they can see only drugs that currently is in the hands of the retailer (i.e. yet to be sold)
+                'selector': {'currentState': DrugStates.RETAILER_RECEIVED} // for customers, they can see only drugs that currently is in the hands of the retailer (i.e. yet to be sold)
             }
         }
 

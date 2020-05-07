@@ -6,7 +6,6 @@ import { User } from '../_models/user';
 @Injectable()
 export class UserService {
   // For testing without connecting to a blockchain network
-  // users: User[];
   userSubject = new BehaviorSubject<User>(null); // starting with null.. to represent a non signed in user state
   private userCacheKey = 'currentUser';
   currentUser: User;

@@ -58,7 +58,7 @@ export class UserManagementComponent implements OnInit{
     }
 
     console.log(user);
-    this.auth.register(user).subscribe(res => {
+    this.auth.registerUser(user).subscribe(res => {
       console.log(JSON.stringify(res));
       this.success = true;
     }, error => {

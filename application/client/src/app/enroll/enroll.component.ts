@@ -20,7 +20,7 @@ export class EnrollComponent{
 
   enroll() {
     this.loading = true;
-    this.authService.enroll(this.model).subscribe(data => {
+    this.authService.enrollUser(this.model).subscribe(data => {
       alert("Enrollment was successful. User can log in to be taken to their portal.");
       this.router.navigate(['/login']);
     }, error => {

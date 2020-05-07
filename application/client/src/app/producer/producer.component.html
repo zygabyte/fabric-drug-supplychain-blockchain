@@ -4,5 +4,56 @@
     <mat-tab label="Manage Orders">
       <orders-table></orders-table>
     </mat-tab>
+
+    <mat-tab label="Manufacture Drug">
+      <div style="display: table-cell; width: 100vw">
+        <div class="formstyle">
+          <h3>New Drug</h3>
+          <form [formGroup]="newDrugForm" (ngSubmit)="onManufactureDrug()">
+
+            <label style="text-align:left">
+              Drug Name:
+              <input type="text" formControlName="name">
+              <div *ngIf="submitted && newDrugForm.controls.name.errors" class="error">
+                <div *ngIf="newDrugForm.controls.name.errors.required">Drug name is required</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Price:
+              <input type="number" min="0" formControlName="price">
+              <div *ngIf="submitted && newDrugForm.controls.price.errors" class="error">
+                <div *ngIf="newDrugForm.controls.price.errors.required">Drug price is required</div>
+                <div *ngIf="newDrugForm.controls.price.errors.min">Minimum of drug price is 0</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Quantity:
+              <input type="number" formControlName="quantity">
+              <div *ngIf="submitted && newDrugForm.controls.quantity.errors" class="error">
+                <div *ngIf="newDrugForm.controls.quantity.errors.required">Drug quantity is required</div>
+                <div *ngIf="newDrugForm.controls.quantity.errors.min">Minimum of drug quantity is 0</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Expiry Date:
+              <input type="text" formControlName="expiryDate">
+              <div *ngIf="submitted && newDrugForm.controls.expiryDate.errors" class="error">
+                <div *ngIf="newDrugForm.controls.expiryDate.errors.required">Drug expiry date is required</div>
+              </div>
+            </label>
+
+            <input type="submit" style="width:100%" value="Manufacture Drug" class="form-button">
+
+          </form>
+          <div *ngIf="submitted" class="results">
+            <p *ngIf="success; else elseBlock">User Registered Successfully!</p>
+            <ng-template #elseBlock>ERROR manufacturing drugs. Please make sure all fields have been filled.</ng-template>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
   </mat-tab-group>
 </section>

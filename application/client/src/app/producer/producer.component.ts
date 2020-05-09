@@ -1,24 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import { UserService } from '../_services/index';
-import {Drug} from "../_models/drug";
+import {Subscription} from 'rxjs';
+
+import { UserService } from '../_services';
+import {Drug} from '../_models/drug';
+import {DrugService} from '../_services/drug.service';
+import {ApiModel} from '../_models/api.model';
+import {StatusCodes} from '../_constants/app-constants';
+import {User} from '../_models/user';
 
 @Component({
   selector: 'app-producer',
   templateUrl: './producer.component.html',
   styleUrls: ['./producer.component.scss']
 })
-export class ProducerComponent implements OnInit {
+export class ProducerComponent implements OnInit, OnDestroy {
 
-  currentUser: any;
+  currentUser: User;
+  userSubscription: Subscription;
   newDrugForm: FormGroup;
   submitted = false;
   success = false;
 
-  constructor(private user: UserService, private formBuilder: FormBuilder) { }
+  manufacturedDrugs: Drug[];
+
+  constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService) { }
 
   ngOnInit() {
-    this.currentUser = this.user.getCurrentUser();
+    this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
+      this.currentUser = user;
+    });
 
     this.newDrugForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -29,19 +40,39 @@ export class ProducerComponent implements OnInit {
     });
   }
 
-  onManufactureDrug(){
-    if (this.newDrugForm.invalid) return;
+  onManufactureDrug() {
+    if (this.newDrugForm.invalid) { return; }
+
+    const formDrugName: string = this.newDrugForm.controls.name.value;
 
     const drug: Drug = {
-      drugId: '',
-      drugName: this.newDrugForm.controls.name.value,
+      drugId: `${formDrugName}${this.getRandomNum()}`,
+      drugName: formDrugName,
       price: this.newDrugForm.controls.price.value,
       quantity: this.newDrugForm.controls.quantity.value,
       prescription: this.newDrugForm.controls.prescription.value,
       expiryDate: this.newDrugForm.controls.expiryDate.value
     };
 
+    this.drugService.createDrug(drug)
+      .subscribe((data: ApiModel<string>) => {
 
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log('successfully created drug');
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
+  }
+
+  getRandomNum(): string {
+    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    return `${s4()}${s4()}${s4()}${s4()}`;
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
   }
 
 }

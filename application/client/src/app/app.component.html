@@ -4,7 +4,7 @@
       <mat-toolbar-row>
         <span>{{title}}</span>
         <span class="spacer"></span>
-        <span><a href="#" (click)="Logout()">Logout</a></span>
+        <span><a [routerLink]="['login']"  (click)="logout()">Logout</a></span>
         <!--<mat-icon aria-hidden="false" aria-label="account circle icon" (click)="logout()">Logout</mat-icon>-->
       </mat-toolbar-row>
     </mat-toolbar>

@@ -26,8 +26,25 @@
       background: #bfd7f0 ;
   }
 
+  .form-button {
+    background: $pastel-blue;
+    width: 125px;
+
+    border: 1px white solid;
+    color: $dark-grey;
+    // border-style: outset;
+    width: 250px;
+    font-size: 75%;
+
+    text-transform: uppercase;
+    // border-radius: 4px;
+    padding: 1em;
+    cursor: pointer;
+    font-family: 'Montserrat';
+  }
+
   .formstyle {
-      width: 50%;
+      width: 100%;
       min-height: 415px;
       float: left;
   }
@@ -36,7 +53,7 @@
 
       display: block;
       border-radius: 5px;
-      height: 415px;
+      height: 200px !important;
       width: 50%;
       padding: 5px;
       float: left;

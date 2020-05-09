@@ -20,13 +20,15 @@ export class DrugService {
   createUserAuthorizationHeader(headers: HttpHeaders): HttpHeaders {
     let currentUser: User;
 
-    this.userService.userSubject.pipe(take(1), map(user => {
-        currentUser = user;
-    }));
+    // todo -> find a way to deal with this subscription
+    this.userService.userSubject.subscribe((user: User) => {
+      currentUser = user;
+    });
 
     if (currentUser) { return headers.append('Authorization', 'Basic ' + btoa(currentUser.userid + ':' + currentUser.password)); }
 
     console.log('could not retrieve currently signed in user');
+    return headers;
   }
 
   getAllDrugs(): Observable<ApiModel<string>> {

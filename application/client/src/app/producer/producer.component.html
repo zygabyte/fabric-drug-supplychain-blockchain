@@ -45,6 +45,14 @@
               </div>
             </label>
 
+            <label style="text-align:left">
+              Drug Prescription:
+              <textarea type="text" formControlName="prescription" class="messageareastyle" rows="3"></textarea>
+              <div *ngIf="submitted && newDrugForm.controls.prescription.errors" class="error">
+                <div *ngIf="newDrugForm.controls.prescription.errors.required">Drug prescription is required</div>
+              </div>
+            </label>
+
             <input type="submit" style="width:100%" value="Manufacture Drug" class="form-button">
 
           </form>

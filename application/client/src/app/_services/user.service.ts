@@ -3,7 +3,9 @@ import {BehaviorSubject} from 'rxjs';
 
 import { User } from '../_models/user';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class UserService {
   // For testing without connecting to a blockchain network
   userSubject = new BehaviorSubject<User>(null); // starting with null.. to represent a non signed in user state

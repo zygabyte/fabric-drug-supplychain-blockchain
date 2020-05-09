@@ -64,12 +64,6 @@ import { AuthGuard } from './_guards/auth.guard';
     MatTableModule,
     MatToolbarModule
   ],
-  providers: [
-    ApiService,
-    AuthService,
-    UserService,
-    AuthGuard
-  ],
   bootstrap: [AppComponent],
   entryComponents: [
     ToShipperDialog,

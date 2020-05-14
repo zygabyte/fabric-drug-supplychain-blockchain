@@ -31,6 +31,7 @@ import { ApiService, AuthService, UserService } from './_services/index';
 import { AuthGuard } from './_guards/auth.guard';
 import { WholesalerComponent } from './wholesaler/wholesaler.component';
 import { DistributorComponent } from './distributor/distributor.component';
+import { DrugsTableComponent } from './_partials/drugs-table/drugs-table.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { DistributorComponent } from './distributor/distributor.component';
     ToShipperDialog,
     DeleteOrderDialog,
     WholesalerComponent,
-    DistributorComponent
+    DistributorComponent,
+    DrugsTableComponent
   ],
   imports: [
     BrowserModule,

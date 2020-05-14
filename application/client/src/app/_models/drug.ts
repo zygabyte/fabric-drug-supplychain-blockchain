@@ -22,4 +22,5 @@ export interface Drug extends CreateDrug {
   retailerReceived: string;
   sold: string;
   currentOwner: string;
+  status: string;
 }

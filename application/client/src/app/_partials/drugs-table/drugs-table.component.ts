@@ -1,21 +1,21 @@
-import {Component, OnInit, ChangeDetectorRef, OnDestroy} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {Subscription} from 'rxjs';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
-import {ApiService, UserService} from '../_services';
-import {User} from '../_models/user';
-import {Drug} from '../_models/drug';
-import {DrugService} from '../_services/drug.service';
-import {Order} from '../_partials/orders-table/orders-table.component';
-import {DrugState, StatusCodes, SupplyChainActors} from '../_constants/app-constants';
-import {MockDrugService} from '../_services/mock/mock.drug.service';
-import {ApiModel} from '../_models/api.model';
+import {User} from '../../_models/user';
+import {Drug} from '../../_models/drug';
+import {Order} from '../orders-table/orders-table.component';
+import {ApiService, UserService} from '../../_services';
+import {DrugService} from '../../_services/drug.service';
+import {MockDrugService} from '../../_services/mock/mock.drug.service';
+import {DrugState, StatusCodes, SupplyChainActors} from '../../_constants/app-constants';
+import {ApiModel} from '../../_models/api.model';
 
 @Component({
-  selector: 'app-retailer',
-  templateUrl: './retailer.component.html',
-  styleUrls: ['./retailer.component.scss'],
+  selector: 'app-drugs-table',
+  templateUrl: './drugs-table.component.html',
+  styleUrls: ['./drugs-table.component.scss'],
   animations: [
     trigger('detailExpand', [
       state('collapsed', style({ height: '0px', minHeight: '0' })),
@@ -24,8 +24,7 @@ import {ApiModel} from '../_models/api.model';
     ]),
   ]
 })
-
-export class RetailerComponent implements OnInit, OnDestroy {
+export class DrugsTableComponent implements OnInit, OnDestroy {
 
   currentUser: User;
   userSubscription: Subscription;
@@ -112,4 +111,5 @@ export class RetailerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.userSubscription.unsubscribe();
   }
+
 }

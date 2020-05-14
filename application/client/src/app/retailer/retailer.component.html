@@ -3,5 +3,170 @@
   <mat-tab-group>
     <mat-tab label="Manage Orders"><orders-table></orders-table></mat-tab>
     <mat-tab label="Place Order"><order-form></order-form></mat-tab>
+
+
+
+    <mat-tab label="Manage Drugs">
+
+      <section id="orders-table">
+        <div class="table-div">
+          <mat-form-field class="mat-form-field ng-tns-c26-530 mat-primary mat-form-field-type-mat-input mat-form-field-appearance-legacy mat-form-field-can-float mat-form-field-has-label mat-form-field-hide-placeholder">
+            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+          </mat-form-field>
+          <table mat-table
+                 [dataSource]="drugs" multiTemplateDataRows
+                 class="mat-elevation-z8">
+            <ng-container matColumnDef="{{column}}" *ngFor="let column of columnsToDisplay">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column}} </th>
+              <td mat-cell *matCellDef="let drug">
+                <span>{{ drug[column] }}</span>
+                <!-- <span *ngIf="column=='action'">
+                  <mat-icon aria-hidden="false" aria-label="delete icon" (click)="deleteOrder(element.orderId)">delete</mat-icon>
+                </span> -->
+              </td>
+            </ng-container>
+
+<!--            <ng-container matColumnDef="{{drugKey}}" *ngFor="let drugKey of drugKeys">-->
+<!--              <td mat-cell *matCellDef="let drug">-->
+<!--                <span>{{ drug[drugKey] }}</span>-->
+<!--                &lt;!&ndash; <span *ngIf="column=='action'">-->
+<!--                  <mat-icon aria-hidden="false" aria-label="delete icon" (click)="deleteOrder(element.orderId)">delete</mat-icon>-->
+<!--                </span> &ndash;&gt;-->
+<!--              </td>-->
+<!--            </ng-container>-->
+
+            <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+            <ng-container matColumnDef="expandedDetail">
+              <td mat-cell *matCellDef="let drug" [attr.colspan]="columnsToDisplay.length">
+<!--                <div *ngIf="!regulator" class="example-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">-->
+                <div class="example-element-detail" [@detailExpand]="drug == expandedElement ? 'expanded' : 'collapsed'">
+                  <div class="row">
+                    <!-- Producer create drug -->
+                    <div class="status-stage status-complete">
+                      <span>
+                        <p>
+                          Drug Created
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
+                        </p>
+                      </span>
+                    </div>
+
+                    <!-- Producer -->
+                    <div class="status-stage" [class.status-complete]="drug.currentState >= drugState.MANUFACTURER_SHIPPED">
+                      <span *ngIf="drug.currentState <= drugState.DRUG_CREATED">
+                        <p>
+                          Manufacturer Shipment Pending...
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">hourglass_empty</mat-icon>
+                        </p>
+                      </span>
+<!--                        <button *ngIf="element.currentState == drugState.DRUG_CREATED && currentUser.usertype == supplyChainActors.manufacturer" [disabled]='element.currentState != drugState.DRUG_CREATED' (click)="acceptOrder(element.orderId)" class="example-element-button">-->
+                        <button *ngIf="drug.currentState == drugState.DRUG_CREATED && currentUser.usertype == supplyChainActors.manufacturer" (click)="manufacturerShipDrug(drug.drugId)" class="example-element-button">
+                          Ship Drug
+                        </button>
+                      <span *ngIf="drug.currentState >= drugState.MANUFACTURER_SHIPPED">
+                        <p>
+                          Manufacturer Shipped
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
+                        </p>
+                      </span>
+                    </div>
+                    <!-- End Producer -->
+
+                    <!-- Distributor -->
+                    <div class="status-stage" [class.status-complete]="drug.currentState >= drugState.DISTRIBUTOR_SHIPPED">
+                      <span *ngIf="drug.currentState <= drugState.DISTRIBUTOR_RECEIVED">
+                        <p>
+                          Distributor Recieve Pending...
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">hourglass_empty</mat-icon>
+                        </p>
+                      </span>
+                        <button *ngIf="drug.currentState == drugState.MANUFACTURER_SHIPPED && currentUser.usertype == supplyChainActors.distributor" (click)="distributorReceiveDrug(drug.drugId)" class="example-element-button">
+                          Receive Drug
+                        </button>
+                        <button *ngIf="drug.currentState == drugState.DISTRIBUTOR_RECEIVED && currentUser.usertype == supplyChainActors.distributor" (click)="distributorShipDrug(drug.drugId)" class="example-element-button">
+                          Ship Drug
+                        </button>
+                      <span *ngIf="drug.currentState >= drugState.DISTRIBUTOR_SHIPPED">
+                        <p>
+                          Distributor Shipped
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
+                        </p>
+                      </span>
+                    </div>
+                    <!-- End Distributor -->
+
+                    <!-- Wholesaler -->
+                    <div class="status-stage" [class.status-complete]="drug.currentState >= drugState.WHOLESALER_SHIPPED">
+                      <span *ngIf="drug.currentState <= drugState.WHOLESALER_RECEIVED">
+                        <p>
+                          Wholesaler Recieve Pending...
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">hourglass_empty</mat-icon>
+                        </p>
+                      </span>
+                        <button *ngIf="drug.currentState == drugState.DISTRIBUTOR_SHIPPED && currentUser.usertype == supplyChainActors.wholesaler" (click)="wholesalerReceiveDrug(drug.drugId)" class="example-element-button">
+                          Receive Drug
+                        </button>
+                        <button *ngIf="drug.currentState == drugState.WHOLESALER_RECEIVED && currentUser.usertype == supplyChainActors.wholesaler" (click)="wholesalerShipDrug(drug.drugId)" class="example-element-button">
+                          Ship Drug
+                        </button>
+                      <span *ngIf="drug.currentState >= drugState.WHOLESALER_SHIPPED">
+                        <p>
+                          Wholesaler Shipped
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
+                        </p>
+                      </span>
+                    </div>
+                    <!-- End Wholesaler -->
+
+                    <!-- Retailer -->
+                    <div class="status-stage" [class.status-complete]="drug.currentState >= drugState.DRUG_SOLD">
+                      <span *ngIf="drug.currentState <= drugState.RETAILER_RECEIVED">
+                        <p>
+                          Retailer Recieve Pending...
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">hourglass_empty</mat-icon>
+                        </p>
+                      </span>
+                        <button *ngIf="drug.currentState == drugState.WHOLESALER_SHIPPED && currentUser.usertype == supplyChainActors.retailer" (click)="retailerReceiveDrug(drug.drugId)" class="example-element-button">
+                          Receive Drug
+                        </button>
+                        <button *ngIf="drug.currentState == drugState.RETAILER_RECEIVED && currentUser.usertype == supplyChainActors.retailer" (click)="retailerSellDrug(drug.drugId)" class="example-element-button">
+                          Sell Drug
+                        </button>
+                      <span *ngIf="drug.currentState >= drugState.DRUG_SOLD">
+                        <p>
+                          Drug Sold
+                          <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
+                        </p>
+                      </span>
+                    </div>
+                    <!-- End Retailer -->
+                </div>
+
+                  <!-- Delete Order -->
+                  <div *ngIf="drug.currentState == drugState.DRUG_CREATED || drug.currentState == drugState.DRUG_SOLD" class="row delete-order">
+                    <button (click)="deleteDrug(drug.drugId)" class="delete-button">
+                      Delete Drug <mat-icon aria-hidden="false" aria-label="delete icon">delete</mat-icon>
+                    </button>
+                  </div>
+                <!-- Regulator View -->
+<!--                <div *ngIf="regulator" class="row example-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">-->
+<!--                  <order-history [orderId]="element.orderId"></order-history>-->
+<!--                </div>-->
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+            <tr mat-row *matRowDef="let drug; columns: columnsToDisplay;"
+                class="example-element-row"
+                [class.example-expanded-row]="expandedElement === drug"
+                (click)="expandedElement = expandedElement === drug ? null : drug">
+            </tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+          </table>
+        </div>
+      </section>
+
+    </mat-tab>
   </mat-tab-group>
 </section>

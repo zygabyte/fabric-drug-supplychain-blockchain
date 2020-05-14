@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { UserService } from '../_services/index';
+import {User} from "../_models/user";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-shipper',
@@ -7,13 +9,20 @@ import { UserService } from '../_services/index';
   styleUrls: ['./shipper.component.scss']
 })
 
-export class ShipperComponent implements OnInit {
-  
-  currentUser: any;
+export class ShipperComponent implements OnInit, OnDestroy {
 
-  constructor(private user: UserService) { }
+  currentUser: User;
+  userSubscription: Subscription;
+
+  constructor(private userService: UserService) { }
 
   ngOnInit() {
-    this.currentUser = this.user.getCurrentUser();
+    this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
+      this.currentUser = user;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
   }
 }

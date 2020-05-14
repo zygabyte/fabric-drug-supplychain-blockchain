@@ -3,10 +3,10 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
 
 import { UserService } from '../_services';
-import {Drug} from '../_models/drug';
+import {CreateDrug, Drug} from '../_models/drug';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
-import {StatusCodes} from '../_constants/app-constants';
+import {DrugState, StatusCodes} from '../_constants/app-constants';
 import {User} from '../_models/user';
 
 @Component({
@@ -45,7 +45,7 @@ export class ProducerComponent implements OnInit, OnDestroy {
 
     const formDrugName: string = this.newDrugForm.controls.name.value;
 
-    const drug: Drug = {
+    const drug: CreateDrug = {
       drugId: `${formDrugName}${this.getRandomNum()}`,
       drugName: formDrugName,
       price: this.newDrugForm.controls.price.value,

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {catchError, map, take} from 'rxjs/operators';
 
-import {Drug} from '../_models/drug';
+import {CreateDrug} from '../_models/drug';
 import {Observable} from 'rxjs';
 import {AppConstants} from '../_constants/app-constants';
 import {UserService} from './user.service';
@@ -49,7 +49,7 @@ export class DrugService {
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
 
-  createDrug(drug: Drug): Observable<ApiModel<string>> {
+  createDrug(drug: CreateDrug): Observable<ApiModel<string>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 

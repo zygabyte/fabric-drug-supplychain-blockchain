@@ -29,6 +29,8 @@ import { DeleteOrderDialog } from './_partials/orders-table/orders-table.compone
 /* Services */
 import { ApiService, AuthService, UserService } from './_services/index';
 import { AuthGuard } from './_guards/auth.guard';
+import { WholesalerComponent } from './wholesaler/wholesaler.component';
+import { DistributorComponent } from './distributor/distributor.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,9 @@ import { AuthGuard } from './_guards/auth.guard';
     OrderHistoryComponent,
     OrdersTableComponent,
     ToShipperDialog,
-    DeleteOrderDialog
+    DeleteOrderDialog,
+    WholesalerComponent,
+    DistributorComponent
   ],
   imports: [
     BrowserModule,

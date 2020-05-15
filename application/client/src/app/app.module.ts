@@ -32,6 +32,7 @@ import { AuthGuard } from './_guards/auth.guard';
 import { WholesalerComponent } from './wholesaler/wholesaler.component';
 import { DistributorComponent } from './distributor/distributor.component';
 import { DrugsTableComponent } from './_partials/drugs-table/drugs-table.component';
+import { ManufacturerComponent } from './manufacturer/manufacturer.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { DrugsTableComponent } from './_partials/drugs-table/drugs-table.compone
     DeleteOrderDialog,
     WholesalerComponent,
     DistributorComponent,
-    DrugsTableComponent
+    DrugsTableComponent,
+    ManufacturerComponent
   ],
   imports: [
     BrowserModule,

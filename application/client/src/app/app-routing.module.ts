@@ -10,6 +10,9 @@ import { QueryorderComponent } from './queryorder/queryorder.component';
 import { RegulatorComponent } from './regulator/regulator.component';
 import { RetailerComponent } from './retailer/retailer.component';
 import { ShipperComponent } from './shipper/shipper.component';
+import {ManufacturerComponent} from './manufacturer/manufacturer.component';
+import {DistributorComponent} from './distributor/distributor.component';
+import {WholesalerComponent} from './wholesaler/wholesaler.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 
 import { AuthGuard } from './_guards/auth.guard';
@@ -22,8 +25,11 @@ const routes: Routes = [
   { path: 'producer', component: ProducerComponent, canActivate: [AuthGuard] },
   { path: 'queryorder', component: QueryorderComponent },
   { path: 'regulator', component: RegulatorComponent, canActivate: [AuthGuard] },
-  { path: 'retailer', component: RetailerComponent, canActivate: [AuthGuard] },
   { path: 'shipper', component: ShipperComponent, canActivate: [AuthGuard] },
+  { path: 'manufacturer', component: ManufacturerComponent, canActivate: [AuthGuard] },
+  { path: 'distributor', component: DistributorComponent, canActivate: [AuthGuard] },
+  { path: 'wholesaler', component: WholesalerComponent, canActivate: [AuthGuard] },
+  { path: 'retailer', component: RetailerComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
 
   // otherwise redirect to login

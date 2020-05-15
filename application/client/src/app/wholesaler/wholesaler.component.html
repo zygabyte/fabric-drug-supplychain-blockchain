@@ -1,3 +1,12 @@
-<p>
-  wholesaler works!
-</p>
+<section id="wholesaler">
+  <h3>Wholesaler Portal - {{currentUser.userid}}</h3>
+  <mat-tab-group>
+    <mat-tab label="Manage Orders">
+      <orders-table></orders-table>
+    </mat-tab>
+
+    <mat-tab label="Manage Drugs">
+      <app-drugs-table></app-drugs-table>
+    </mat-tab>
+  </mat-tab-group>
+</section>

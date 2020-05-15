@@ -1,7 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { UserService } from '../_services/index';
-import {User} from "../_models/user";
-import {Subscription} from "rxjs";
+import {Subscription} from 'rxjs';
+
+import { UserService } from '../_services';
+import {User} from '../_models/user';
 
 @Component({
   selector: 'app-shipper',

@@ -22,7 +22,8 @@ export class AuthService {
     let headers = new HttpHeaders();
     headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
     return this.httpClient
-      .post<ApiModel<string>>(`${AppConstants.baseUserUrl}/register`, user, {headers})
+      // .post<ApiModel<string>>(`${AppConstants.baseUserUrl}/register`, user, {headers})
+      .post<ApiModel<string>>(`${AppConstants.baseUrl}/api/register-user`, user, {headers})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
 
@@ -30,9 +31,11 @@ export class AuthService {
   // todo -> make sure to update this on the backend to use the passed user for the enrollment
   enrollUser(user: User): Observable<ApiModel<string>> {
     let headers = new HttpHeaders();
-    headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
+    // headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
+    headers = headers.append('Authorization', 'Basic ' + btoa(`${user.userid}:${user.password}`));
     return this.httpClient
-      .post<ApiModel<string>>(`${AppConstants.baseUserUrl}/enroll`, user, {headers})
+      // .post<ApiModel<string>>(`${AppConstants.baseUserUrl}/enroll`, user, {headers})
+      .post<ApiModel<string>>(`${AppConstants.baseUrl}/api/enroll-user`, user, {headers})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
 

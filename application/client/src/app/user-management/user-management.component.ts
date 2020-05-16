@@ -1,8 +1,10 @@
 import { Component, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ApiService, AuthService } from '../_services/index';
-
 import {MatTableDataSource} from '@angular/material/table';
+
+import { ApiService, AuthService } from '../_services';
+import {SupplyChainActors} from '../_constants/app-constants';
+import {User} from '../_models/user';
 
 @Component({
   selector: 'app-user-management',
@@ -11,9 +13,10 @@ import {MatTableDataSource} from '@angular/material/table';
   providers: []
 })
 
-export class UserManagementComponent implements OnInit{
+export class UserManagementComponent implements OnInit {
   newUser: Object;
   types: any[];
+  supplyChainActors: string[];
 
   newUserForm: FormGroup;
   submitted = false;
@@ -22,10 +25,11 @@ export class UserManagementComponent implements OnInit{
   allUsers: MatTableDataSource<EditUser[]>;
   columnsToDisplay = ['id', 'usertype', 'enrolled'];
 
-  constructor(private api: ApiService, private auth: AuthService, private formBuilder: FormBuilder){}
+  constructor(private api: ApiService, private auth: AuthService, private formBuilder: FormBuilder) {}
 
-  ngOnInit(){
+  ngOnInit() {
     this.types = ["retailer", "producer", "shipper", "customer", "regulator"];
+    this.supplyChainActors = Object.keys(SupplyChainActors);
 
     this.newUserForm = this.formBuilder.group({
       id: ['', Validators.required],
@@ -38,24 +42,24 @@ export class UserManagementComponent implements OnInit{
     this.loadUserList(0);
   }
 
-  onSubmit(){
+  onSubmit() {
     this.submitted = true;
 
     if (this.newUserForm.invalid) {
       return;
     }
 
-    if (this.newUserForm.controls.password.value != this.newUserForm.controls.confirm_password.value){
-      console.log("the passwords don't match");
+    if (this.newUserForm.controls.password.value !== this.newUserForm.controls.confirm_password.value) {
+      console.log('the passwords do not match');
       this.success = false;
       return;
     }
 
-    var user = {
+    const user: User = {
       userid: this.newUserForm.controls.id.value,
       password: this.newUserForm.controls.password.value,
       usertype: this.newUserForm.controls.usertype.value,
-    }
+    };
 
     console.log(user);
     this.auth.registerUser(user).subscribe(res => {
@@ -64,7 +68,7 @@ export class UserManagementComponent implements OnInit{
     }, error => {
       console.log(JSON.stringify(error));
       this.success = false;
-    })
+    });
   }
 
   loadUserList(tab) {

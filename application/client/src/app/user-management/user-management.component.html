@@ -19,6 +19,7 @@
         <tr mat-row *matRowDef="let element; columns: columnsToDisplay;" class="example-element-row"></tr>
       </table>
     </mat-tab>
+
     <mat-tab label="Register New User">
       <div style="display: table-cell; width: 100vw">
         <div class="formstyle">
@@ -53,7 +54,7 @@
             <label style="text-align:left">
               Type:
               <select class="form-control" formControlName="usertype" required>
-                <option *ngFor="let r of types" [ngValue]="r">{{ r }}</option>
+                <option *ngFor="let r of supplyChainActors" [ngValue]="r">{{ r }}</option>
               </select>
               <div *ngIf="submitted && newUserForm.controls.usertype.errors" class="error">
                 <div *ngIf="newUserForm.controls.usertype.errors.required">Type is required</div>

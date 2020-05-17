@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {catchError, map, take} from 'rxjs/operators';
 
-import {CreateDrug} from '../_models/drug';
+import {CreateDrug, Drug} from '../_models/drug';
 import {Observable} from 'rxjs';
 import {AppConstants} from '../_constants/app-constants';
 import {UserService} from './user.service';
@@ -31,93 +31,173 @@ export class DrugService {
     return headers;
   }
 
-  getAllDrugs(): Observable<ApiModel<string>> {
+  getAllDrugs(): Observable<ApiModel<Drug[]>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .get<ApiModel<string>>(AppConstants.baseDrugUrl, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug[]> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  getDrug(drugId: string): Observable<ApiModel<string>> {
+  getDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .get<ApiModel<string>>(`${AppConstants.baseDrugUrl}/${drugId}`, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  createDrug(drug: CreateDrug): Observable<ApiModel<string>> {
+  createDrug(drug: CreateDrug): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .post<ApiModel<string>>(AppConstants.baseDrugUrl, drug, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  manufacturerShipDrug(drugId: string): Observable<ApiModel<string>> {
+  manufacturerShipDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/manufacturer/ship/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  distributorReceiveDrug(drugId: string): Observable<ApiModel<string>> {
+  distributorReceiveDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/distributor/receive/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  distributorShipDrug(drugId: string): Observable<ApiModel<string>> {
+  distributorShipDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/distributor/ship/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  wholesalerReceiveDrug(drugId: string): Observable<ApiModel<string>> {
+  wholesalerReceiveDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/wholesaler/receive/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  wholesalerShipDrug(drugId: string): Observable<ApiModel<string>> {
+  wholesalerShipDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/wholesaler/ship/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  retailerReceiveDrug(drugId: string): Observable<ApiModel<string>> {
+  retailerReceiveDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/retailer/receive/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
-  retailerSellDrug(drugId: string): Observable<ApiModel<string>> {
+  retailerSellDrug(drugId: string): Observable<ApiModel<Drug>> {
     let headers = new HttpHeaders();
     headers = this.createUserAuthorizationHeader(headers);
 
     return this.httpClient
       .patch<ApiModel<string>>(`${AppConstants.baseDrugUrl}/retailer/sell/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((apiModel: ApiModel<string>) => {
+        const drugModel: ApiModel<Drug> = {
+          data: JSON.parse(apiModel.data),
+          code: apiModel.code,
+          message: apiModel.message
+        };
+
+        return drugModel;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 }

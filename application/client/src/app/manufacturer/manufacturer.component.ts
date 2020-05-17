@@ -8,6 +8,7 @@ import {UserService} from '../_services';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
 import {StatusCodes} from '../_constants/app-constants';
+import {MockDrugService} from "../_services/mock/mock.drug.service";
 
 @Component({
   selector: 'app-manufacturer',
@@ -24,7 +25,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
 
   manufacturedDrugs: Drug[];
 
-  constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService) { }
+  constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService, private mockDrugService: MockDrugService) { }
 
   ngOnInit() {
     this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
@@ -46,7 +47,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
     const formDrugName: string = this.newDrugForm.controls.name.value;
 
     const drug: CreateDrug = {
-      drugId: `${formDrugName}${this.getRandomNum()}`,
+      drugId: `${formDrugName.toLowerCase()}${this.getRandomNum()}`,
       drugName: formDrugName,
       price: this.newDrugForm.controls.price.value,
       quantity: this.newDrugForm.controls.quantity.value,
@@ -54,8 +55,8 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
       expiryDate: this.newDrugForm.controls.expiryDate.value
     };
 
-    this.drugService.createDrug(drug)
-      .subscribe((data: ApiModel<string>) => {
+    this.mockDrugService.createDrug(drug)
+      .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
         if (data.code === StatusCodes.success) {

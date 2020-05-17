@@ -23,7 +23,7 @@ export class AuthService {
     headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
     return this.httpClient
       // .post<ApiModel<string>>(`${AppConstants.baseUserUrl}/register`, user, {headers})
-      .post<ApiModel<string>>(`${AppConstants.baseUrl}/api/register-user`, user, {headers})
+      .post<ApiModel<string>>(`${AppConstants.baseUrl}/api/register-user`, user, {headers, responseType: 'text'})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
 
@@ -35,7 +35,7 @@ export class AuthService {
     headers = headers.append('Authorization', 'Basic ' + btoa(`${user.userid}:${user.password}`));
     return this.httpClient
       // .post<ApiModel<string>>(`${AppConstants.baseUserUrl}/enroll`, user, {headers})
-      .post<ApiModel<string>>(`${AppConstants.baseUrl}/api/enroll-user`, user, {headers})
+      .post<ApiModel<string>>(`${AppConstants.baseUrl}/api/enroll-user`, user, {headers, responseType: 'text'})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
 

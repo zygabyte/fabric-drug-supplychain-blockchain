@@ -62,10 +62,10 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
 
     // this.drugService.getAllDrugs().
 
-    this.mockDrugService.getAllMockDrugs().subscribe((data: ApiModel<string> ) => {
+    this.mockDrugService.getAllDrugs().subscribe((data: ApiModel<Drug[]> ) => {
       if (data.code === StatusCodes.success) {
         console.log('data is ', data.data);
-        this.drugs = JSON.parse(data.data);
+        this.drugs = new MatTableDataSource(data.data);
 
         console.log('new data is ', this.drugs);
       }
@@ -77,31 +77,94 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
   }
 
   manufacturerShipDrug(drugId: string) {
+    this.mockDrugService.manufacturerShipDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
 
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   distributorReceiveDrug(drugId: string) {
+    this.mockDrugService.distributorReceiveDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
 
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   distributorShipDrug(drugId: string) {
+    this.mockDrugService.distributorShipDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
 
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   wholesalerReceiveDrug(drugId: string) {
+    this.mockDrugService.wholesalerReceiveDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
 
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   wholesalerShipDrug(drugId: string) {
+    this.mockDrugService.wholesalerShipDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
 
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   retailerReceiveDrug(drugId: string) {
-    console.log('drug to be received ', drugId);
+    this.mockDrugService.retailerReceiveDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
+
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   retailerSellDrug(drugId: string) {
-    console.log('drug to be sold ', drugId);
+    this.mockDrugService.retailerSellDrug(drugId)
+      .subscribe((data: ApiModel<Drug>) => {
+
+        console.log('data is ', data);
+        if (data.code === StatusCodes.success) {
+          console.log(data.message);
+        }
+      }, error => {
+        console.log('error in creating drug', error);
+      });
   }
 
   deleteDrug(drugId: string) {
@@ -111,5 +174,4 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.userSubscription.unsubscribe();
   }
-
 }

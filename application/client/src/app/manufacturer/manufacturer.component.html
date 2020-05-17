@@ -1,8 +1,12 @@
 <section id="manufacturer">
   <h3>Manufacturer Portal - {{currentUser.userid}}</h3>
   <mat-tab-group>
-    <mat-tab label="Manage Orders">
-      <orders-table></orders-table>
+<!--    <mat-tab label="Manage Orders">-->
+<!--      <orders-table></orders-table>-->
+<!--    </mat-tab>-->
+
+    <mat-tab label="Manage Drugs">
+      <app-drugs-table></app-drugs-table>
     </mat-tab>
 
     <mat-tab label="Manufacture Drug">
@@ -62,10 +66,6 @@
           </div>
         </div>
       </div>
-    </mat-tab>
-
-    <mat-tab label="Manage Drugs">
-      <app-drugs-table></app-drugs-table>
     </mat-tab>
   </mat-tab-group>
 </section>

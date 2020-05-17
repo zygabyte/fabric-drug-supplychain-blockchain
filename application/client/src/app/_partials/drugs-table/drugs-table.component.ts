@@ -28,7 +28,6 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
 
   currentUser: User;
   userSubscription: Subscription;
-  // columnsToDisplay = ['Drug Id', 'Drug Name', 'Price', 'Quantity', 'Producer Id', 'Status'];
   columnsToDisplay = ['drugId', 'drugName', 'price', 'quantity', 'created', 'expiryDate', 'status'];
   drugs: MatTableDataSource<Drug[]>;
   orders: MatTableDataSource<Order[]>;
@@ -52,20 +51,10 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
   }
 
   loadMockDrugs() {
-    // Load up the Orders from backend
-    // this.apiService.orders$.subscribe(currentOrders => {
-    //   this.orders = new MatTableDataSource(currentOrders);
-    //   console.log('orders are ', this.orders);
-    //   // this.cd.markForCheck();
-    // });
-    // this.apiService.queryOrders();
-
-    // this.drugService.getAllDrugs().
-
     this.mockDrugService.getAllDrugs().subscribe((data: ApiModel<Drug[]> ) => {
       if (data.code === StatusCodes.success) {
         console.log('data is ', data.data);
-        this.drugs = new MatTableDataSource(data.data);
+        this.drugs = data.data;
 
         console.log('new data is ', this.drugs);
       }

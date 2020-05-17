@@ -8,7 +8,7 @@ import {UserService} from '../_services';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
 import {StatusCodes} from '../_constants/app-constants';
-import {MockDrugService} from "../_services/mock/mock.drug.service";
+import {MockDrugService} from '../_services/mock/mock.drug.service';
 
 @Component({
   selector: 'app-manufacturer',
@@ -23,7 +23,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
   submitted = false;
   success = false;
 
-  manufacturedDrugs: Drug[];
+  error: string;
 
   constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService, private mockDrugService: MockDrugService) { }
 
@@ -42,7 +42,12 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
   }
 
   onManufactureDrug() {
-    if (this.newDrugForm.invalid) { return; }
+    this.submitted = true;
+
+    if (this.newDrugForm.invalid) {
+      this.error = 'One or more fields is invalid. Please ensure all fields have been filled with valid values.';
+      return;
+    }
 
     const formDrugName: string = this.newDrugForm.controls.name.value;
 
@@ -61,9 +66,14 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
         console.log('data is ', data);
         if (data.code === StatusCodes.success) {
           console.log('successfully created drug');
+
+          this.success = true;
         }
       }, error => {
         console.log('error in creating drug', error);
+        this.error = 'ERROR manufacturing drug. Please make sure all fields have been filled.';
+
+        this.success = false;
       });
   }
 

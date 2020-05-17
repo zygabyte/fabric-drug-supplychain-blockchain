@@ -61,8 +61,8 @@
 
           </form>
           <div *ngIf="submitted" class="results">
-            <p *ngIf="success; else elseBlock">User Registered Successfully!</p>
-            <ng-template #elseBlock>ERROR manufacturing drugs. Please make sure all fields have been filled.</ng-template>
+            <p *ngIf="success; else elseBlock">Drug Manufactured Successfully!</p>
+            <ng-template #elseBlock>{{error}}</ng-template>
           </div>
         </div>
       </div>

@@ -54,16 +54,16 @@ export class ProducerComponent implements OnInit, OnDestroy {
       expiryDate: this.newDrugForm.controls.expiryDate.value
     };
 
-    this.drugService.createDrug(drug)
-      .subscribe((data: ApiModel<string>) => {
-
-        console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
-          console.log('successfully created drug');
-        }
-      }, error => {
-        console.log('error in creating drug', error);
-      });
+    // this.drugService.createDrug(drug)
+    //   .subscribe((data: ApiModel<string>) => {
+    //
+    //     console.log('data is ', data);
+    //     if (data.code === StatusCodes.success) {
+    //       console.log('successfully created drug');
+    //     }
+    //   }, error => {
+    //     console.log('error in creating drug', error);
+    //   });
   }
 
   getRandomNum(): string {

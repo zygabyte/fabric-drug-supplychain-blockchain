@@ -17,7 +17,7 @@ export class DrugService {
 
   constructor(private httpClient: HttpClient, private userService: UserService) { }
 
-  createUserAuthorizationHeader(headers: HttpHeaders): HttpHeaders {
+  private createUserAuthorizationHeader(headers: HttpHeaders): HttpHeaders {
     let currentUser: User;
 
     // todo -> find a way to deal with this subscription

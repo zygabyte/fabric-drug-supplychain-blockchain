@@ -1,34 +1,34 @@
 import { Component, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {MatTableDataSource} from '@angular/material/table';
+import {BehaviorSubject, Observable} from 'rxjs';
 
-import { ApiService, AuthService } from '../_services';
-import {SupplyChainActors} from '../_constants/app-constants';
-import {User} from '../_models/user';
+import {ApiService, AuthService, UserService} from '../_services';
+import {StatusCodes, SupplyChainActors} from '../_constants/app-constants';
+import {ApiUser, User, UserEnrollment} from '../_models/user';
+import {ApiModel} from '../_models/api.model';
 
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
-  styleUrls: ['./user-management.component.scss'],
-  providers: []
+  styleUrls: ['./user-management.component.scss']
 })
 
 export class UserManagementComponent implements OnInit {
-  newUser: Object;
-  types: any[];
   supplyChainActors: string[];
 
   newUserForm: FormGroup;
   submitted = false;
   success = false;
 
-  allUsers: MatTableDataSource<EditUser[]>;
+  error: string;
+
+  allUsers: MatTableDataSource<UserEnrollment[]>;
   columnsToDisplay = ['id', 'usertype', 'enrolled'];
 
-  constructor(private api: ApiService, private auth: AuthService, private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: FormBuilder, private userService: UserService, private auth: AuthService) {}
 
   ngOnInit() {
-    this.types = ["retailer", "producer", "shipper", "customer", "regulator"];
     this.supplyChainActors = Object.keys(SupplyChainActors);
 
     this.newUserForm = this.formBuilder.group({
@@ -39,18 +39,19 @@ export class UserManagementComponent implements OnInit {
     });
 
     // get all users
-    this.loadUserList(0);
+    this.getAllUsers();
   }
 
-  onSubmit() {
+  onRegisterUser() {
     this.submitted = true;
 
     if (this.newUserForm.invalid) {
+      this.error = 'One or more fields is invalid. Please ensure all fields have been filled with valid values.';
       return;
     }
 
     if (this.newUserForm.controls.password.value !== this.newUserForm.controls.confirm_password.value) {
-      console.log('the passwords do not match');
+      this.error = 'The passwords do not match';
       this.success = false;
       return;
     }
@@ -65,41 +66,64 @@ export class UserManagementComponent implements OnInit {
     this.auth.registerUser(user).subscribe(res => {
       console.log('response');
       console.log(res);
+
       this.success = true;
     }, error => {
       console.log(JSON.stringify(error));
       this.success = false;
+
+      this.error = 'ERROR registering user. Please make sure all fields have been filled.';
     });
   }
 
-  loadUserList(tab) {
-    if (tab == 0) {
-      this.api.getAllUsers().subscribe(res => {
-        var userArray = Object.keys(res).map(function (userIndex) {
-          let user = res[userIndex];
-          // do something with person
-          return user;
-        });
-        //console.log(userArray);
-        for (let user of userArray) {
-          this.api.id = user.id;
-          this.api.isUserEnrolled().subscribe(res => {
-            // NOTE: adding a new user attribute called enrolled
-            user.enrolled = res;
-          }, error => {
-            console.log(JSON.stringify(error));
-          });
-        }
-        this.allUsers = new MatTableDataSource(userArray);
-      }, error => {
-        console.log(JSON.stringify(error));
-        alert("Problem loading user list: " + error['error']['message']);
-      });
-    }
-  }
-}
+  getAllUsers() {
+    this.userService.getAllUsers().subscribe((users: ApiUser[]) => {
 
-export interface EditUser {
-  id: string;
-  usertype: string;
+      this.getUsersEnrollment(users).subscribe((usersEnrollment: UserEnrollment[]) => {
+        if (usersEnrollment && usersEnrollment.length > 0) this.allUsers = usersEnrollment;
+      });
+    }, error => {
+      console.log(JSON.stringify(error));
+      alert("Problem loading user list: " + error['error']['message']);
+    });
+
+    // use this when ledger has been fixed
+    // this.userService.getAllUsers().subscribe((users: ApiModel<ApiUser[]>) => {
+    //   if (users.code === StatusCodes.success) {
+    //     const usersEnrollment: UserEnrollment[] = [];
+    //
+    //     users.data.forEach(user => {
+    //       this.userService.isUserEnrolled(user.id)
+    //         .subscribe((userEnrolled: ApiModel<boolean>) => {
+    //           if (userEnrolled.code === StatusCodes.success)
+    //             usersEnrollment.push({ id: user.id, usertype: user.usertype, enrolled: userEnrolled.data });
+    //       });
+    //     });
+    //
+    //     this.allUsers = usersEnrollment;
+    //   }
+    // }, error => {
+    //   console.log(JSON.stringify(error));
+    //   alert("Problem loading user list: " + error['error']['message']);
+    // });
+  }
+
+  private getUsersEnrollment(apiUsers: ApiUser[]): Observable<UserEnrollment[]> {
+    const usersEnrollment: UserEnrollment[] = [];
+
+    const enrollmentSubject = new BehaviorSubject<UserEnrollment[]>(null);
+
+    apiUsers.forEach(user => {
+      this.userService.isUserEnrolled(user.id)
+        .subscribe((userEnrolled: boolean) => {
+          usersEnrollment.push({ id: user.id, usertype: user.usertype, enrolled: userEnrolled });
+
+          if (usersEnrollment.length === apiUsers.length) { // at this point we've reached the capacity, so we can yield the observable result
+            enrollmentSubject.next(usersEnrollment);
+          }
+        });
+    });
+
+    return enrollmentSubject.asObservable();
+  }
 }

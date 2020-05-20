@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
 
 import {User} from '../_models/user';
-import {CreateDrug, Drug} from '../_models/drug';
+import {Drug} from '../_models/drug';
 import {UserService} from '../_services';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
@@ -51,13 +51,14 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
 
     const formDrugName: string = this.newDrugForm.controls.name.value;
 
-    const drug: CreateDrug = {
+    const drug: Drug = {
       drugId: `${formDrugName.toLowerCase()}${this.getRandomNum()}`,
       drugName: formDrugName,
       price: this.newDrugForm.controls.price.value,
       quantity: this.newDrugForm.controls.quantity.value,
       prescription: this.newDrugForm.controls.prescription.value,
-      expiryDate: this.newDrugForm.controls.expiryDate.value
+      expiryDate: this.newDrugForm.controls.expiryDate.value,
+      created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'})
     };
 
     this.mockDrugService.createDrug(drug)

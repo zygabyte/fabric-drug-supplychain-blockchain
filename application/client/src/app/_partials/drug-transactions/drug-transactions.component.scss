@@ -1,0 +1,54 @@
+@import 'src/assets/css/colors';
+
+h4{
+  text-align: center;
+}
+
+table{
+  width: 100%;
+  text-align: left;
+  background-color: $pastel-blue;
+}
+
+mat-form-field{
+  width:100%;
+}
+
+label {
+  display: block;
+
+  input, textarea {
+    display: block;
+    width: 100%;
+    height: 25px;
+    margin-bottom: 20px;
+    padding: 1em;
+  }
+
+  .error {
+    margin-top: -20px;
+    background: yellow;
+    padding: .5em;
+    display: inline-block;
+    font-size: .9em;
+    margin-bottom: 20px;
+  }
+}
+
+.messageareastyle {
+
+  display: block;
+  border-radius: 5px;
+  height: 200px !important;
+  width: 100%;
+  padding: 5px;
+  float: left;
+  overflow-y:scroll;
+  p {
+    display: block;
+    width: 100%;
+    margin: 5px;
+    padding: 5px;
+    text-align: left;
+  }
+}

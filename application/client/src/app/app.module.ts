@@ -4,7 +4,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatCheckboxModule, MatDialogModule, MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule,MatMenuModule,MatProgressBarModule, MatStepperModule,MatTableModule,MatTabsModule, MatToolbarModule, MatTooltipModule } from '@angular/material';
+import { MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  MatTableModule, MatTabsModule, MatToolbarModule } from '@angular/material';
 
 /* Components */
 import { AppComponent } from './app.component';
@@ -27,12 +28,11 @@ import { ToShipperDialog } from './_partials/orders-table/orders-table.component
 import { DeleteOrderDialog } from './_partials/orders-table/orders-table.component';
 
 /* Services */
-import { ApiService, AuthService, UserService } from './_services/index';
-import { AuthGuard } from './_guards/auth.guard';
 import { WholesalerComponent } from './wholesaler/wholesaler.component';
 import { DistributorComponent } from './distributor/distributor.component';
 import { DrugsTableComponent } from './_partials/drugs-table/drugs-table.component';
 import { ManufacturerComponent } from './manufacturer/manufacturer.component';
+import { DrugTransactionsComponent } from './_partials/drug-transactions/drug-transactions.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +55,8 @@ import { ManufacturerComponent } from './manufacturer/manufacturer.component';
     WholesalerComponent,
     DistributorComponent,
     DrugsTableComponent,
-    ManufacturerComponent
+    ManufacturerComponent,
+    DrugTransactionsComponent
   ],
   imports: [
     BrowserModule,

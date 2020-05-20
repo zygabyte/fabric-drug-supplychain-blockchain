@@ -23,7 +23,7 @@ export class UserManagementComponent implements OnInit {
 
   error: string;
 
-  allUsers: MatTableDataSource<UserEnrollment[]>;
+  allUsers: MatTableDataSource<UserEnrollment[]> = new MatTableDataSource<UserEnrollment[]>();
   columnsToDisplay = ['id', 'usertype', 'enrolled'];
 
   constructor(private formBuilder: FormBuilder, private userService: UserService, private auth: AuthService) {}
@@ -80,7 +80,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.getAllUsers().subscribe((users: ApiUser[]) => {
 
       this.getUsersEnrollment(users).subscribe((usersEnrollment: UserEnrollment[]) => {
-        if (usersEnrollment && usersEnrollment.length > 0) this.allUsers = usersEnrollment;
+        if (usersEnrollment && usersEnrollment.length > 0) this.allUsers.data = usersEnrollment;
       });
     }, error => {
       console.log(JSON.stringify(error));

@@ -14,6 +14,7 @@ import {ManufacturerComponent} from './manufacturer/manufacturer.component';
 import {DistributorComponent} from './distributor/distributor.component';
 import {WholesalerComponent} from './wholesaler/wholesaler.component';
 import { UserManagementComponent } from './user-management/user-management.component';
+import {DrugTransactionsComponent} from './_partials/drug-transactions/drug-transactions.component';
 
 import { AuthGuard } from './_guards/auth.guard';
 
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'wholesaler', component: WholesalerComponent, canActivate: [AuthGuard] },
   { path: 'retailer', component: RetailerComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
+  { path: 'drug-transaction-history', component: DrugTransactionsComponent },
 
   // otherwise redirect to login
   { path: '**', redirectTo: '/login' }

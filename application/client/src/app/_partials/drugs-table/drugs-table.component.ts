@@ -4,7 +4,7 @@ import {Subscription} from 'rxjs';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
 import {User} from '../../_models/user';
-import {Drug} from '../../_models/drug';
+import {Drug, DrugTransaction} from '../../_models/drug';
 import {Order} from '../orders-table/orders-table.component';
 import {ApiService, UserService} from '../../_services';
 import {DrugService} from '../../_services/drug.service';
@@ -29,8 +29,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
   currentUser: User;
   userSubscription: Subscription;
   columnsToDisplay = ['drugId', 'drugName', 'price', 'quantity', 'created', 'expiryDate', 'status'];
-  drugs: MatTableDataSource<Drug[]>;
-  orders: MatTableDataSource<Order[]>;
+  drugs: MatTableDataSource<DrugTransaction[]> = new MatTableDataSource<DrugTransaction[]>();
 
   drugState: any;
   supplyChainActors: any;
@@ -51,10 +50,10 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
   }
 
   loadMockDrugs() {
-    this.mockDrugService.getAllDrugs().subscribe((data: ApiModel<Drug[]> ) => {
+    this.mockDrugService.getAllDrugs().subscribe((data: ApiModel<DrugTransaction[]> ) => {
       if (data.code === StatusCodes.success) {
         console.log('data is ', data.data);
-        this.drugs = data.data;
+        this.drugs.data = data.data;
 
         console.log('new data is ', this.drugs);
       }

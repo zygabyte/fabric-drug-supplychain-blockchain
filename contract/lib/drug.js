@@ -9,14 +9,14 @@ const State = require('../ledger-api/state.js');
 
 // Enumerate drug state values
 const drugState = {
-    DRUG_CREATED: 1,    // manufacturer
-    MANUFACTURER_SHIPPED: 2,    // manufacturer
-    DISTRIBUTOR_RECEIVED: 3,   // distributor
-    DISTRIBUTOR_SHIPPED: 4,   // distributor
-    WHOLESALER_RECEIVED: 5,  // wholesaler
-    WHOLESALER_SHIPPED: 6,  // wholesaler
-    RETAILER_RECEIVED: 7,  // retailer
-    DRUG_SOLD: 8 // consumer
+    DRUG_CREATED: 'DRUG_CREATED',    // manufacturer
+    MANUFACTURER_SHIPPED: 'MANUFACTURER_SHIPPED',    // manufacturer
+    DISTRIBUTOR_RECEIVED: 'DISTRIBUTOR_RECEIVED',   // distributor
+    DISTRIBUTOR_SHIPPED: 'DISTRIBUTOR_SHIPPED',   // distributor
+    WHOLESALER_RECEIVED: 'WHOLESALER_RECEIVED',  // wholesaler
+    WHOLESALER_SHIPPED: 'WHOLESALER_SHIPPED',  // wholesaler
+    RETAILER_RECEIVED: 'RETAILER_RECEIVED',  // retailer
+    DRUG_SOLD: 'DRUG_SOLD' // consumer
 };
 
 /**
@@ -33,28 +33,23 @@ class Drug extends State {
 
     /*
    Definition:  Class Drug:
-     {String}  drugId
-     {String} drugName
-     {float}   price
-     {Integer} quantity
-     {Date} expiryDate
-     {String} prescription
-     {String} manufacturerId
-     {String} distributorId
-     {String} wholesalerId
-     {String} retailerId
-     {Enumerated drugStates} currentDrugState
-     {Date} created
-     {Date} manufacturerShipped
-     {Date} distributorReceived
-     {Date} distributorShipped
-     {Date} wholesalerReceived
-     {Date} wholesalerShipped
-     {Date} retailerReceived
-     {Date} sold
-     {String} currentOwner
+     {string} drugId
+     {string} drugName
+     {float} price
+     {integer} quantity
+     {string} expiryDate
+     {string} prescription
+     {string} created
+     {string} manufacturerId
+     {string} distributorId
+     {string} wholesalerId
+     {string} retailerId
+     {string} timeStamp
+     {string} currentOwner
+     {string} transactionId
+     {boolean} isDeleted
    */
-
+    
     /**
      * Basic getters and setters
      */
@@ -91,7 +86,6 @@ class Drug extends State {
         this.currentState = drugState.WHOLESALER_RECEIVED;
     }
 
-    
     setStateToWholesalerShipped() {
         this.currentState = drugState.WHOLESALER_SHIPPED;
     }
@@ -100,7 +94,6 @@ class Drug extends State {
         this.currentState = drugState.RETAILER_RECEIVED;
     }
 
-    
     setStateToDrugSold() {
         this.currentState = drugState.DRUG_SOLD;
     }

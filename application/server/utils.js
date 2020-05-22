@@ -268,7 +268,10 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
         //console.log("\n Successful enrollment; Data returned by enroll", enrollment.certificate);
         var identity = X509WalletMixin.createIdentity(orgMspId, enrollment.certificate, enrollment.key.toBytes());
         return wallet.import(userid, identity).then(notused => {
-            return console.log('msg: Successfully enrolled user, ' + userid + ' and imported into the wallet');
+            console.log('msg: Successfully enrolled user, ' + userid + ' and imported into the wallet');
+            console.log('notused', notused);
+            
+            return `successfully enrolled user ${userid} and imported into the wallet`;
         }, error => {
             console.log("error in wallet.import\n" + error.toString());
             throw error;

@@ -16,13 +16,14 @@ var gateway;
 var network;
 var contract = null;
 var configdata; // config.json
-var wallet; // ../../gateway/local/gen_local_wallet
+var wallet; // ../../gateway/local/gen_local_wallet   -> it eventually stores the wallet of the admin
 var bLocalHost; // true
-var fabricConnProfile;  // ../../gateway/local/fabric_connection.json   -> the fabric connection profile
-var orgMSPID;  // Org1MSP
-const EVENT_TYPE = "bcpocevent";  //  HLFabric EVENT
+var fabricConnProfile;  // ../../gateway/local/fabric_connection.json   -> the fabric connection profile but parsed as a json object
+var orgMspId;  // Org1MSP
 
-const SUCCESS = 0;
+const smartContractEvents = require('./constants').SMART_CONTRACT_EVENTS; //  HLFabric EVENT
+const defaultUser = require('./constants').DEFAULT_USER; //  default admin user
+
 const utils = {};
 
 // Main program function
@@ -78,26 +79,26 @@ utils.connectGatewayFromConfig = async () => {
         // Parse the connection profile. This would be the path to the file downloaded
         // from the IBM Blockchain Platform operational console.
         const ccpPath = path.resolve(__dirname, configdata["connection_profile_filename"]);
-        var userid = process.env.FABRIC_USER_ID || "admin";
-        var pwd = process.env.FABRIC_USER_SECRET || "adminpw";
-        var usertype = process.env.FABRIC_USER_TYPE || "admin";
-        console.log('user: ' + userid + ", pwd: ", pwd + ", usertype: ", usertype);
+        var defaultUserId = process.env.FABRIC_USER_ID || defaultUser.userId; // the default which is the admin (for local)
+        var defaultPassword = process.env.FABRIC_USER_SECRET || defaultUser.userSecret;
+        var defaultUserType = process.env.FABRIC_USER_TYPE || defaultUser.userType;
+        console.log('user: ' + defaultUserId + ", defaultPassword: ", defaultPassword + ", defaultUserType: ", defaultUserType);
 
         // Load connection profile; will be used to locate a gateway
-        fabricConnProfile = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+        fabricConnProfile = JSON.parse(fs.readFileSync(ccpPath, 'utf8')); // we first the json file from the file system and parse the fabric_connection.json here to a json object
 
         // Set up the MSP Id
-        orgMSPID = fabricConnProfile.client.organization;
-        console.log('MSP ID: ' + orgMSPID);
+        orgMspId = fabricConnProfile.client.organization;
+        console.log('MSP ID: ' + orgMspId);
 
         // Open path to the identity wallet
         wallet = new FileSystemWallet(walletpath);
 
-        const idExists = await wallet.exists(userid);
-        if (!idExists) {
+        const idExists = await wallet.exists(defaultUserId);
+        if (!idExists) { // creating a default admin wallet to be used in case one does not exist
             // Enroll identity in the wallet
-            console.log(`Enrolling and importing ${userid} into wallet`);
-            await utils.enrollUser(userid, pwd, usertype);
+            console.log(`Enrolling and importing ${defaultUserId} into wallet`);
+            await utils.enrollUser(defaultUserId, defaultPassword, defaultUserType);
         }
 
         // 1. connect to gateway
@@ -106,11 +107,11 @@ utils.connectGatewayFromConfig = async () => {
         // Connect to gateway using application specified parameters
         console.log('Connect to Fabric gateway.');
         await gateway.connect(fabricConnProfile, {
-            identity: userid, wallet: wallet, discovery: { enabled: true, asLocalhost: bLocalHost }
+            identity: defaultUserId, wallet: wallet, discovery: { enabled: true, asLocalhost: bLocalHost }
         });
 
         // Access channel: channel_name
-        console.log('Use network channel: ' + configdata["channel_name"]);
+        console.log('Use network channel: ' + configdata["channel_name"]); // -> network channel - mychannel
 
         // Get addressability to the smart contract as specified in config
         network = await gateway.getNetwork(configdata["channel_name"]);
@@ -155,7 +156,7 @@ utils.events = async () => {
                // options:
                {startBlock:23, endBlock:30, unregister: true, disconnect: true}
         */
-        var regid = channel_event_hub.registerChaincodeEvent(configdata["smart_contract_name"], EVENT_TYPE,
+        var regid = channel_event_hub.registerChaincodeEvent(configdata["smart_contract_name"], smartContractEvents.EVENT_TYPE,
             (event, block_num, txnid, status) => {
                 // This callback will be called when there is a chaincode event name
                 // within a block that will match on the second parameter in the registration
@@ -206,7 +207,7 @@ utils.registerUser = async (userid, userpwd, usertype, adminIdentity) => {
 
     const orgs = fabricConnProfile.organizations;
     const CAs = fabricConnProfile.certificateAuthorities;
-    const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0];
+    const fabricCAKey = orgs[orgMspId].certificateAuthorities[0];
     const caURL = CAs[fabricCAKey].url;
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
 
@@ -214,7 +215,7 @@ utils.registerUser = async (userid, userpwd, usertype, adminIdentity) => {
         enrollmentID: userid,
         enrollmentSecret: userpwd,
         role: "client",
-        //affiliation: orgMSPID,
+        //affiliation: orgMspId,
         //profile: 'tls',
         attrs: [
             {
@@ -247,7 +248,7 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
     // get certificate authority
     const orgs = fabricConnProfile.organizations;  // organizations
     const CAs = fabricConnProfile.certificateAuthorities; // certificateAuthorities
-    const fabricCAKey = orgs[orgMSPID].certificateAuthorities[0]; // organizations[Org1MSP].certificateAuthorities[0] => Org1CA
+    const fabricCAKey = orgs[orgMspId].certificateAuthorities[0]; // organizations[Org1MSP].certificateAuthorities[0] => Org1CA
     const caURL = CAs[fabricCAKey].url; // certificateAuthorities[Org1CA].url => http://localhost:17050
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
 
@@ -262,11 +263,15 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
             }]
     };
 
+    // enroll onto the network and then import 
     return ca.enroll(newUserDetails).then(enrollment => {
         //console.log("\n Successful enrollment; Data returned by enroll", enrollment.certificate);
-        var identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
+        var identity = X509WalletMixin.createIdentity(orgMspId, enrollment.certificate, enrollment.key.toBytes());
         return wallet.import(userid, identity).then(notused => {
-            return console.log('msg: Successfully enrolled user, ' + userid + ' and imported into the wallet');
+            console.log('msg: Successfully enrolled user, ' + userid + ' and imported into the wallet');
+            console.log('notused', notused);
+            
+            return `successfully enrolled user ${userid} and imported into the wallet`;
         }, error => {
             console.log("error in wallet.import\n" + error.toString());
             throw error;
@@ -336,7 +341,7 @@ utils.getUser = async (userid, adminIdentity) => {
     let result = {"id": userid};
 
     // for admin, usertype is "admin";
-    if (userid == "admin") {
+    if (userid === defaultUser.userId) {
         result.usertype = userid;
     } else { // look through user attributes for "usertype"
         let j = 0;
@@ -370,13 +375,13 @@ utils.getAllUsers = async (adminIdentity) => {
         tmp.id = identities[i].id;
         tmp.usertype = "";
 
-        if (tmp.id == "admin")
+        if (tmp.id === defaultUser.userId)
             tmp.usertype = tmp.id;
         else {
             attributes = identities[i].attrs;
             // look through all attributes for one called "usertype"
             for (var j = 0; j < attributes.length; j++)
-                if (attributes[j].name == "usertype") {
+                if (attributes[j].name === "usertype") {
                     tmp.usertype = attributes[j].value;
                     break;
                 }

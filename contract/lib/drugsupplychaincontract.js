@@ -9,9 +9,8 @@ const { Contract, Context } = require('fabric-contract-api');
 
 // drug supplychainnet specific classes
 const Drug = require('./drug');
-const DrugStates = require('./drug').drugStates;
-const supplyChainActors = require('../../application/server/constants').SUPPLY_CHAIN_ACTORS;
-const smartContractEvents = require('../../application/server/constants').SMART_CONTRACT_EVENTS;
+const supplyChainActors = require('./constants').SUPPLY_CHAIN_ACTORS;
+const smartContractEvents = require('./constants').SMART_CONTRACT_EVENTS;
 
 /**
  * A custom context provides easy access to list of all products
@@ -649,3 +648,5 @@ class DrugSupplyChainContract extends Contract {
         return new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
     }
 }
+
+module.exports = DrugSupplyChainContract;

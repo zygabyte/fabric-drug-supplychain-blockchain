@@ -6,7 +6,7 @@
     retailer: 'retailer',
     consumer: 'consumer',
     admin: 'admin'
-}
+};
 
 ﻿module.exports.DEFAULT_USER = {
     userId: 'admin',
@@ -21,16 +21,18 @@ module.exports.HTTP_STATUS_CODES = {
     STATUS_SERVER_ERROR: 500
 }
 
-//  USER Management Errors
-module.exports.USER_STATUS_CODES = {
-    USER_NOT_ENROLLED: 1000,
-    INVALID_HEADER: 1001
-}
-
 //  application specific errors
 module.exports.APP_CODES = {
     SUCCESS: 0,
-    DRUG_NOT_FOUND: 2000
+    DRUG_NOT_FOUND: 1001,
+    DRUG_NOT_CREATED: 1002,
+    DRUG_NOT_SHIPPED: 1003,
+    DRUG_NOT_RECEIVED: 1004,
+    DRUG_NOT_SOLD: 1005,
+    USER_NOT_ENROLLED: 1006,
+    USER_NOT_FOUND: 1007,
+    USER_NOT_REGISTERED: 1008,
+    INVALID_USER_HEADER: 1009
 }
 
 //  smart contract errors

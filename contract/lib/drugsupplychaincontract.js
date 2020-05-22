@@ -52,29 +52,23 @@ class DrugSupplyChainContract extends Contract {
 
     /**
      * createDrug
-     * To be used by a manufacturer after they have created a drug and just prior to shipping 
-     *
+     * To be used by a manufacturer after they have created a drug and just prior to shipping
      * @param {Context} ctx the transaction context
-     * @param {String}  drugId
-     * @param {String} drugName
-     * @param {float}  price
-     * @param {Integer} quantity
-     * @param {Date} expiryDate
-     * @param {String} prescription
-     * @param {String} manufacturerId
-     * @param {String} distributorId
-     * @param {String} wholesalerId
-     * @param {String} retailerId
-     * @param {Enumerated drugStates} currentDrugState
-     * @param {Date} created
-     * @param {Date} manufacturerShipped
-     * @param {Date} distributorReceived
-     * @param {Date} distributorShipped
-     * @param {Date} wholesalerReceived
-     * @param {Date} wholesalerShipped
-     * @param {Date} retailerReceived
-     * @param {Date} sold
-     * @param {String} currentOwner
+     * @param {string} drugId
+     * @param {string} drugName
+     * @param {float} price
+     * @param {integer} quantity
+     * @param {string} expiryDate
+     * @param {string} prescription
+     * @param {string} created
+     * @param {string} manufacturerId
+     * @param {string} distributorId
+     * @param {string} wholesalerId
+     * @param {string} retailerId
+     * @param {string} timeStamp
+     * @param {string} currentOwner
+     * @param {string} transactionId
+     * @param {boolean} isDeleted
      * Usage: submitTransaction ('orderProduct', 'Order001', 'mango', 100.00, 100, 'farm1', 'walmart')
      * Usage: ["Order100", "mango", "10.00", "102", "farm1", "walmart"]
      */
@@ -106,20 +100,11 @@ class DrugSupplyChainContract extends Contract {
         drug.quantity = drugDetails.quantity;
         drug.expiryDate = drugDetails.expiryDate;
         drug.prescription = drugDetails.prescription;
+        drug.created = drugDetails.created;
         drug.manufacturerId = userId;
-        drug.distributorId = '';
-        drug.wholesalerId = '';
-        drug.retailerId = '';
         drug.setStateToDrugCreated();
-        drug.created = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         drug.currentOwner = userId;
-        drug.manufacturerShipped = '';
-        drug.distributorReceived = '';
-        drug.distributorShipped = '';
-        drug.wholesalerReceived = '';
-        drug.wholesalerShipped = '';
-        drug.retailerReceived = '';
-        drug.sold = '';
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -151,13 +136,13 @@ class DrugSupplyChainContract extends Contract {
      * Usage:  manufacturerShipDrug ('drug001')
      */
     async manufacturerShipDrug(ctx, drugId) {
-        console.info('============= manufacturer ship drug ===========');
+        console.info('============= manufacturerShipDrug ===========');
 
         //  The manufacturer ships the drug after the production of the drug 
 
         // Access Control: This transaction should only be invoked by a designated manufacturer
         const userType = await this.getCurrentUserType(ctx);
-
+        
         if ((userType !== supplyChainActors.admin) && // admin only has access as a precaution.
             (userType !== supplyChainActors.manufacturer))
             throw new Error(`Error Message from manufacturerShipDrug: This user does not have access to ship drug of id ${drugId}`);
@@ -174,13 +159,14 @@ class DrugSupplyChainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
-
+        const userId = await this.getCurrentUserId(ctx);
+        
         // Change currentDrugState to MANUFACTURER_SHIPPED;
         drug.setStateToManufacturerShipped();
-        // update the date and time it was shipped
-        drug.manufacturerShipped = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.manufacturerId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -201,7 +187,7 @@ class DrugSupplyChainContract extends Contract {
      * Usage:  distributorReceiveDrug ('drug001')
      */
     async distributorReceiveDrug(ctx, drugId) {
-        console.info('============= distributor receive drug ===========');
+        console.info('============= distributorReceiveDrug ===========');
 
         //  The distributor receives the drug after it arrives from the manufacturer
 
@@ -224,16 +210,14 @@ class DrugSupplyChainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
-
         const userId = await this.getCurrentUserId(ctx);
 
         // Change currentDrugState to DISTRIBUTOR_RECEIVED;
         drug.setStateToDistributorReceived();
-        // update the date and time it was received
-        drug.distributorReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
         drug.currentOwner = userId;
         drug.distributorId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -273,13 +257,14 @@ class DrugSupplyChainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
-
+        const userId = await this.getCurrentUserId(ctx);
+        
         // Change currentDrugState to DISTRIBUTOR_SHIPPED;
         drug.setStateToDistributorShipped();
-        // update the date and time it was shipped
-        drug.distributorShipped = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.distributorId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -321,16 +306,14 @@ class DrugSupplyChainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
-
         const userId = await this.getCurrentUserId(ctx);
 
         // Change currentDrugState to WHOLESALER_RECEIVED;
         drug.setStateToWholesalerReceived();
-        // update the date and time it was received
-        drug.wholesalerReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
         drug.currentOwner = userId;
         drug.wholesalerId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -370,13 +353,14 @@ class DrugSupplyChainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
-
+        const userId = await this.getCurrentUserId(ctx);
+        
         // Change currentDrugState to WHOLESALER_SHIPPED;
         drug.setStateToWholesalerShipped();
-        // update the date and time it was shipped
-        drug.wholesalerShipped = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.wholesalerId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -422,11 +406,10 @@ class DrugSupplyChainContract extends Contract {
 
         // Change currentDrugState to RETAILER_RECEIVED;
         drug.setStateToRetailerReceived();
-        // update the date and time it was received
-        drug.retailerReceived = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
         drug.currentOwner = userId;
         drug.retailerId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -466,13 +449,14 @@ class DrugSupplyChainContract extends Contract {
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
-
+        const userId = await this.getCurrentUserId(ctx);
+        
         // Change currentDrugState to DRUG_SOLD;
         drug.setStateToDrugSold();
-        // update the date and time it was sold
-        drug.sold = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'});
         // Track who exactly invoked this transaction
-        drug.currentOwner = await this.getCurrentUserId(ctx);
+        drug.currentOwner = userId;
+        drug.retailerId = userId;
+        drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
@@ -485,21 +469,25 @@ class DrugSupplyChainContract extends Contract {
 
 
     /**
-     * getDrug
+     * queryDrug
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
      * Usage:  getDrug ('drug001')
      *
      */
-    async getDrug(ctx, drugId) {
-        console.info('============= get drug ===========');
-
-        //  This is called for query a particular drug by the Id, but note that drugs that do not have the state of RETAILER_RECEIVED (i.e. currently in the hands of the retailer) cannot be returned
+    async queryDrug(ctx, drugId) {
+        console.info('============= queryDrug ===========');
 
         if (!drugId || drugId.length < 1) {
             throw new Error('drugId is required as input')
         }
+
+        // Access Control: This transaction should only be invoked by a designated retailer
+        const userType = await this.getCurrentUserType(ctx);
+
+        if (userType === supplyChainActors.consumer)
+            throw new Error('Error Message from queryDrug: This consumer user cannot query drug');
 
         const drugAsBytes = await ctx.stub.getState(drugId);
 
@@ -519,12 +507,6 @@ class DrugSupplyChainContract extends Contract {
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
 
-        // Access Control: This transaction should only be invoked by a designated retailer
-        const userType = await this.getCurrentUserType(ctx);
-
-        if (userType === supplyChainActors.consumer && drug.getCurrentState() !== DrugStates.RETAILER_RECEIVED)
-            throw new Error('Error Message from getDrug: This consumer user cannot query this drug as it does not yet belong to the retailer');
-
         // Return a serialized order to caller of smart contract
         return drug.toBuffer();
     }
@@ -538,28 +520,23 @@ class DrugSupplyChainContract extends Contract {
      * Usage:  getDrug ('drug001')
      *
      */
-    async getAllDrugs(ctx) {
-        console.info('============= get all drugs ===========');
-
-        //  This is called for query all drugs
+    async queryDrugs(ctx) {
+        console.info('============= queryDrugs ===========');
 
         const userType = await this.getCurrentUserType(ctx);
+      
+       if (userType === supplyChainActors.consumer)
+            throw new Error('Error Message from queryDrugs: This consumer user cannot query drugs');
 
-        let queryString = {
-            'selector': {}  //  no filter;  return all all drugs -> for admins
-        }
-        
-        if (userType === supplyChainActors.consumer){
-            queryString = {
-                'selector': {'currentState': DrugStates.RETAILER_RECEIVED} // for customers, they can see only drugs that currently is in the hands of the retailer (i.e. yet to be sold)
-            }
+        const queryString = {
+            'selector': {}  //  no filter;  return all drugs
         }
 
-        console.log("Info Message from getAllDrugs: queryString = ", queryString);
+        console.log("Info Message from queryDrugs: queryString = ", queryString);
 
         const iterator = await ctx.stub.getQueryResult(JSON.stringify(queryString));
 
-        console.log("Info Message from getAllDrugs: iterator = ", iterator);
+        console.log("Info Message from queryDrugs: iterator = ", iterator);
 
         const allDrugs = [];
 
@@ -569,18 +546,17 @@ class DrugSupplyChainContract extends Contract {
             if (drug.value && drug.value.value.toString()) {
                 console.log(drug.value.value.toString('utf8'));
 
-                // const Key = drug.value.key;
-                let Record;
+                let record;
                 try {
-                    Record = JSON.parse(drug.value.value.toString('utf8'));
+                    record = JSON.parse(drug.value.value.toString('utf8'));
                 } catch (err) {
                     console.log(err);
-                    Record = drug.value.value.toString('utf8');
+                    record = drug.value.value.toString('utf8');
                 }
-                // allDrugs.push({ Key, Record });
-                allDrugs.push(Record); // push to all drugs
+                // allDrugs.push({ Key, record });
+                allDrugs.push(record); // push to all drugs
 
-                console.log("Info Message from getAllDrugs: Record = ", Record);
+                console.log("Info Message from getAllDrugs: record = ", record);
             }
             if (drug.done) {
                 console.log('end of data');
@@ -589,6 +565,47 @@ class DrugSupplyChainContract extends Contract {
                 return JSON.stringify(allDrugs);
             }
         }
+    }
+
+
+    async queryDrugTransactionHistory(ctx, drugId) {
+        console.info('============= queryDrugTransactionHistory ===========');
+        if (drugId.length < 1) {
+            throw new Error('drugId is required as input')
+        }
+        console.log("input, drugId = " + drugId);
+
+        // Get list of transactions for drug
+        const iterator = await ctx.stub.getHistoryForKey(drugId);
+        const drugHistory = [];
+
+        while (true) {
+            const history = await iterator.next();
+
+            if (history.value && history.value.value.toString()) {
+                let record;
+               
+                try {
+                    record = JSON.parse(history.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    record = history.value.value.toString('utf8');
+                }
+                
+                record.transactionId = history.value.tx_id;
+                record.isDeleted = history.value.is_delete.toString();
+
+                // Add to array of transaction history on drug
+                drugHistory.push(record);
+            }
+
+            if (history.done) {
+                console.log('end of data');
+                await iterator.close();
+                console.info(drugHistory);
+                return drugHistory;
+            }
+        } //  while (true)
     }
 
 
@@ -605,10 +622,8 @@ class DrugSupplyChainContract extends Contract {
 
         //  check user id;  if admin, return type = admin;
         //  else return value set for attribute "type" in certificate;
-        if (userid === supplyChainActors.admin) {
-            console.log('user id ' + userid);
+        if (userid === supplyChainActors.admin)
             return userid;
-        }
 
         console.log('current user type is ', ctx.clientIdentity.getAttributeValue("usertype"));
         return ctx.clientIdentity.getAttributeValue("usertype");
@@ -616,7 +631,7 @@ class DrugSupplyChainContract extends Contract {
 
     /**
      * getCurrentUserId
-     * To be called by application to get the type for a user who is logged in
+     * To be called by application to get the id for a user who is logged in
      *
      * @param {Context} ctx the transaction context
      * Usage:  getCurrentUserId ()
@@ -628,5 +643,9 @@ class DrugSupplyChainContract extends Contract {
         const end = id[0].lastIndexOf("::/C=");
         
         return id[0].substring(begin + 4, end);
+    }
+    
+    getCurrentDateTime() {
+        return new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
     }
 }

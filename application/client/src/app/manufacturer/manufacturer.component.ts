@@ -7,7 +7,7 @@ import {Drug} from '../_models/drug';
 import {UserService} from '../_services';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
-import {StatusCodes} from '../_constants/app-constants';
+import {ApiStatusCodes} from '../_constants/app-constants';
 import {MockDrugService} from '../_services/mock/mock.drug.service';
 
 @Component({
@@ -65,7 +65,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log('successfully created drug');
 
           this.success = true;

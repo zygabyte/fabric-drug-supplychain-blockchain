@@ -4,7 +4,7 @@ import {MatTableDataSource} from '@angular/material/table';
 import {BehaviorSubject, Observable} from 'rxjs';
 
 import {ApiService, AuthService, UserService} from '../_services';
-import {StatusCodes, SupplyChainActors} from '../_constants/app-constants';
+import {ApiStatusCodes, SupplyChainActors} from '../_constants/app-constants';
 import {ApiUser, User, UserEnrollment} from '../_models/user';
 import {ApiModel} from '../_models/api.model';
 
@@ -80,7 +80,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.getAllUsers().subscribe((users: ApiUser[]) => {
 
       this.getUsersEnrollment(users).subscribe((usersEnrollment: UserEnrollment[]) => {
-        if (usersEnrollment && usersEnrollment.length > 0) this.allUsers.data = usersEnrollment;
+        if (usersEnrollment && usersEnrollment.length > 0) this.allUsers.data = JSON.parse(JSON.stringify(usersEnrollment));
       });
     }, error => {
       console.log(JSON.stringify(error));

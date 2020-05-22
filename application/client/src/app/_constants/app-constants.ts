@@ -12,57 +12,29 @@ export const DefaultUser = {
   userType: 'admin'
 };
 
-export const StatusCodes = {
-  success: 99,
-  failure: 11,
-  badrequest: 88,
-  invalidCredentials: 56
+export const ApiStatusCodes = {
+  SUCCESS: 0,
+  DRUG_NOT_FOUND: 1001,
+  DRUG_NOT_CREATED: 1002,
+  DRUG_NOT_SHIPPED: 1003,
+  DRUG_NOT_RECEIVED: 1004,
+  DRUG_NOT_SOLD: 1005,
+  USER_NOT_ENROLLED: 1006,
+  USER_NOT_FOUND: 1007,
+  USER_NOT_REGISTERED: 1008,
+  INVALID_USER_HEADER: 1009
 };
-
 
 export const DrugState = {
-  DRUG_CREATED: 1,    // manufacturer
-  MANUFACTURER_SHIPPED: 2,    // manufacturer
-  DISTRIBUTOR_RECEIVED: 3,   // distributor
-  DISTRIBUTOR_SHIPPED: 4,   // distributor
-  WHOLESALER_RECEIVED: 5,  // wholesaler
-  WHOLESALER_SHIPPED: 6,  // wholesaler
-  RETAILER_RECEIVED: 7,  // retailer
-  DRUG_SOLD: 8, // consumer
+  DRUG_CREATED: 'DRUG_CREATED',    // manufacturer
+  MANUFACTURER_SHIPPED: 'MANUFACTURER_SHIPPED',    // manufacturer
+  DISTRIBUTOR_RECEIVED: 'DISTRIBUTOR_RECEIVED',   // distributor
+  DISTRIBUTOR_SHIPPED: 'DISTRIBUTOR_SHIPPED',   // distributor
+  WHOLESALER_RECEIVED: 'WHOLESALER_RECEIVED',  // wholesaler
+  WHOLESALER_SHIPPED: 'WHOLESALER_SHIPPED',  // wholesaler
+  RETAILER_RECEIVED: 'RETAILER_RECEIVED',  // retailer
+  DRUG_SOLD: 'DRUG_SOLD' // consumer
 };
-
-export class DrugStateUtil {
-  static getDrugStateName(drugState: number): string {
-    switch (drugState) {
-      case 1:
-        return 'DRUG_CREATED';
-
-      case 2:
-        return 'MANUFACTURER_SHIPPED';
-
-      case 3:
-        return 'DISTRIBUTOR_RECEIVED';
-
-      case 4:
-        return 'DISTRIBUTOR_SHIPPED';
-
-      case 5:
-        return 'WHOLESALER_RECEIVED';
-
-      case 6:
-        return 'WHOLESALER_SHIPPED';
-
-      case 7:
-        return 'RETAILER_RECEIVED';
-
-      case 8:
-        return 'DRUG_SOLD';
-
-      default:
-        return 'Invalid State';
-    }
-  }
-}
 
 export const SupplyChainActors = {
   regulator: 'regulator',

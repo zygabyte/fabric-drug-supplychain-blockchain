@@ -5,11 +5,10 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 
 import {User} from '../../_models/user';
 import {Drug, DrugTransaction} from '../../_models/drug';
-import {Order} from '../orders-table/orders-table.component';
 import {ApiService, UserService} from '../../_services';
 import {DrugService} from '../../_services/drug.service';
 import {MockDrugService} from '../../_services/mock/mock.drug.service';
-import {DrugState, StatusCodes, SupplyChainActors} from '../../_constants/app-constants';
+import {DrugState, ApiStatusCodes, SupplyChainActors} from '../../_constants/app-constants';
 import {ApiModel} from '../../_models/api.model';
 
 @Component({
@@ -28,7 +27,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
 
   currentUser: User;
   userSubscription: Subscription;
-  columnsToDisplay = ['drugId', 'drugName', 'price', 'quantity', 'created', 'expiryDate', 'status'];
+  columnsToDisplay = ['drugId', 'drugName', 'price', 'quantity', 'created', 'expiryDate', 'currentState'];
   drugs: MatTableDataSource<DrugTransaction[]> = new MatTableDataSource<DrugTransaction[]>();
 
   drugState: any;
@@ -51,9 +50,9 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
 
   loadMockDrugs() {
     this.mockDrugService.getAllDrugs().subscribe((data: ApiModel<DrugTransaction[]> ) => {
-      if (data.code === StatusCodes.success) {
+      if (data.code === ApiStatusCodes.SUCCESS) {
         console.log('data is ', data.data);
-        this.drugs.data = data.data;
+        this.drugs.data = JSON.parse(JSON.stringify(data.data));
 
         console.log('new data is ', this.drugs);
       }
@@ -69,7 +68,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {
@@ -82,7 +81,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {
@@ -95,7 +94,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {
@@ -108,7 +107,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {
@@ -121,7 +120,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {
@@ -134,7 +133,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {
@@ -147,7 +146,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);
-        if (data.code === StatusCodes.success) {
+        if (data.code === ApiStatusCodes.SUCCESS) {
           console.log(data.message);
         }
       }, error => {

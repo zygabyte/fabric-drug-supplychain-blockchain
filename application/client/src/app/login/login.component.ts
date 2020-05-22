@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ApiService, UserService } from '../_services';
 import {ApiModel} from '../_models/api.model';
 import {ApiUser, User} from '../_models/user';
-import {DefaultUser, StatusCodes} from '../_constants/app-constants';
+import {DefaultUser, ApiStatusCodes} from '../_constants/app-constants';
 
 @Component({
   selector: 'app-login',

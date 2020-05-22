@@ -1,9 +1,9 @@
-import {Injectable, OnDestroy, OnInit} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 
 import {ApiModel} from '../../_models/api.model';
 import {Drug, DrugTransaction} from '../../_models/drug';
-import {DrugState, DrugStateUtil, StatusCodes} from '../../_constants/app-constants';
+import {DrugState, ApiStatusCodes} from '../../_constants/app-constants';
 import {User} from '../../_models/user';
 import {UserService} from '../user.service';
 
@@ -33,7 +33,6 @@ export class MockDrugService implements OnDestroy {
       created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       timeStamp: new Date(2020, 7, 9).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'james_retailer',
-      status: DrugStateUtil.getDrugStateName(DrugState.DRUG_SOLD),
       isDeleted: false,
       transactionId: ''
     },
@@ -52,7 +51,6 @@ export class MockDrugService implements OnDestroy {
       created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       timeStamp: new Date(2020, 6, 11).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'james_retailer',
-      status: DrugStateUtil.getDrugStateName(DrugState.RETAILER_RECEIVED),
       isDeleted: false,
       transactionId: ''
     },
@@ -71,7 +69,6 @@ export class MockDrugService implements OnDestroy {
       created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       timeStamp: new Date(2020, 11, 11).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'ade_producer',
-      status: DrugStateUtil.getDrugStateName(DrugState.DRUG_CREATED),
       isDeleted: false,
       transactionId: ''
     }
@@ -87,7 +84,7 @@ export class MockDrugService implements OnDestroy {
     this.mockDrugs = this.getDrugsFromLocalStorage();
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -102,7 +99,7 @@ export class MockDrugService implements OnDestroy {
     this.mockDrugs = this.getDrugsFromLocalStorage();
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drug',
       data: this.mockDrugs.find(mockDrug => mockDrug.drugId === drugId)
     };
@@ -130,7 +127,6 @@ export class MockDrugService implements OnDestroy {
       created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       timeStamp: new Date(2020, 11, 11).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'ade_producer',
-      status: DrugStateUtil.getDrugStateName(DrugState.DRUG_CREATED),
       isDeleted: false,
       transactionId: ''
     };
@@ -138,13 +134,13 @@ export class MockDrugService implements OnDestroy {
     this.mockDrugs.push(newDrug);
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully created drug',
       data: newDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -167,7 +163,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.MANUFACTURER_SHIPPED;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.MANUFACTURER_SHIPPED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -180,13 +175,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'manufacturer successfully shipped drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -209,7 +204,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.DISTRIBUTOR_RECEIVED;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.DISTRIBUTOR_RECEIVED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         mockDrug.distributorId = this.currentUser.userid;
@@ -223,13 +217,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'distributor successfully received drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -252,7 +246,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.DISTRIBUTOR_SHIPPED;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.DISTRIBUTOR_SHIPPED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -265,13 +258,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'distributor successfully shipped drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -294,7 +287,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.WHOLESALER_RECEIVED;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.WHOLESALER_RECEIVED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         mockDrug.wholesalerId = this.currentUser.userid;
@@ -308,13 +300,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'wholesaler successfully received drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -337,7 +329,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.WHOLESALER_SHIPPED;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.WHOLESALER_SHIPPED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -350,13 +341,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'wholesaler successfully shipped drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -379,7 +370,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.RETAILER_RECEIVED;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.RETAILER_RECEIVED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         mockDrug.retailerId = this.currentUser.userid;
@@ -393,13 +383,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'retailer successfully received drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -422,7 +412,6 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.DRUG_SOLD;
-        mockDrug.status = DrugStateUtil.getDrugStateName(DrugState.DRUG_SOLD);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -435,13 +424,13 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugModel: ApiModel<DrugTransaction> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'retailer successfully sold drug',
       data: foundDrug
     };
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: this.mockDrugs
     };
@@ -465,7 +454,7 @@ export class MockDrugService implements OnDestroy {
     });
 
     const mockDrugsModel: ApiModel<DrugTransaction[]> = {
-      code: StatusCodes.success,
+      code: ApiStatusCodes.SUCCESS,
       message: 'successfully retrieved drugs',
       data: drugTransactionHistory
     };

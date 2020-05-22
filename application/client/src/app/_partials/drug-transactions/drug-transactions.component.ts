@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {DrugService} from '../../_services/drug.service';
 import {ApiModel} from '../../_models/api.model';
 import {DrugTransaction} from '../../_models/drug';
-import {StatusCodes} from '../../_constants/app-constants';
+import {ApiStatusCodes} from '../../_constants/app-constants';
 import {MockDrugService} from '../../_services/mock/mock.drug.service';
 
 @Component({
@@ -25,7 +25,7 @@ export class DrugTransactionsComponent implements OnInit {
   getDrugTransactionHistory(drugId: string) {
     this.mockDrugService.getDrugTransactionHistory(drugId).subscribe((data: ApiModel<DrugTransaction[]>) => {
 
-      if (data.code === StatusCodes.success) {
+      if (data.code === ApiStatusCodes.SUCCESS) {
         this.drugTransactionHistory = data.data;
       }
     });

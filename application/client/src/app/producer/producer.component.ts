@@ -5,8 +5,6 @@ import {Subscription} from 'rxjs';
 import { UserService } from '../_services';
 import {Drug} from '../_models/drug';
 import {DrugService} from '../_services/drug.service';
-import {ApiModel} from '../_models/api.model';
-import {DrugState, StatusCodes} from '../_constants/app-constants';
 import {User} from '../_models/user';
 
 @Component({

@@ -185,7 +185,7 @@ utils.submitTx = async(contract, txName, ...args) => {
     let result = contract.submitTransaction(txName, ...args);
     return result.then (response => {
         // console.log ('Transaction submitted successfully;  Response: ', response.toString());
-        console.log ('utils.js: Transaction submitted successfully');
+        console.log ('utils.js: Transaction submitted successfully. Response: ', response.toString());
         return Promise.resolve(response.toString());
     },(error) =>
         {
@@ -390,12 +390,5 @@ utils.getAllUsers = async (adminIdentity) => {
     }
     return result;
 }  //  end of function getAllUsers
-
-//  function getRandomNum
-//  Purpose: Provide a random tracking number for the createShipment transaction
-utils.getRandomNum = () => {
-    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
-    return `${s4()}${s4()}${s4()}${s4()}`
-}
 
 module.exports = utils;

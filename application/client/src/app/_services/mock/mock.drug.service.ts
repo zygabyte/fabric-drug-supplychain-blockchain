@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 
 import {ApiModel} from '../../_models/api.model';
-import {Drug, DrugTransaction} from '../../_models/drug';
+import {Drug, DrugStateUtil, DrugTransaction} from '../../_models/drug';
 import {DrugState, ApiStatusCodes} from '../../_constants/app-constants';
 import {User} from '../../_models/user';
 import {UserService} from '../user.service';
@@ -34,7 +34,8 @@ export class MockDrugService implements OnDestroy {
       timeStamp: new Date(2020, 7, 9).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'james_retailer',
       isDeleted: false,
-      transactionId: ''
+      transactionId: '',
+      currentStateName: DrugStateUtil.getDrugStateName(DrugState.DRUG_SOLD)
     },
     {
       drugId: 'chloroquine72a7899c5f560b81cb6d',
@@ -52,7 +53,8 @@ export class MockDrugService implements OnDestroy {
       timeStamp: new Date(2020, 6, 11).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'james_retailer',
       isDeleted: false,
-      transactionId: ''
+      transactionId: '',
+      currentStateName: DrugStateUtil.getDrugStateName(DrugState.RETAILER_RECEIVED)
     },
     {
       drugId: 'amoxicillin85355d31800ba1524da5',
@@ -70,7 +72,8 @@ export class MockDrugService implements OnDestroy {
       timeStamp: new Date(2020, 11, 11).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'ade_producer',
       isDeleted: false,
-      transactionId: ''
+      transactionId: '',
+      currentStateName: DrugStateUtil.getDrugStateName(DrugState.DRUG_CREATED)
     }
   ];
 
@@ -125,10 +128,11 @@ export class MockDrugService implements OnDestroy {
       wholesalerId: '',
       retailerId: '',
       created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
-      timeStamp: new Date(2020, 11, 11).toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
+      timeStamp: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'}),
       currentOwner: 'ade_producer',
       isDeleted: false,
-      transactionId: ''
+      transactionId: '',
+      currentStateName: DrugStateUtil.getDrugStateName(DrugState.DRUG_CREATED)
     };
 
     this.mockDrugs.push(newDrug);
@@ -163,6 +167,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.MANUFACTURER_SHIPPED;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.MANUFACTURER_SHIPPED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -204,6 +209,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.DISTRIBUTOR_RECEIVED;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.DISTRIBUTOR_RECEIVED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         mockDrug.distributorId = this.currentUser.userid;
@@ -246,6 +252,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.DISTRIBUTOR_SHIPPED;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.DISTRIBUTOR_SHIPPED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -287,6 +294,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.WHOLESALER_RECEIVED;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.WHOLESALER_RECEIVED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         mockDrug.wholesalerId = this.currentUser.userid;
@@ -329,6 +337,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.WHOLESALER_SHIPPED;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.WHOLESALER_SHIPPED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -370,6 +379,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.RETAILER_RECEIVED;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.RETAILER_RECEIVED);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         mockDrug.retailerId = this.currentUser.userid;
@@ -412,6 +422,7 @@ export class MockDrugService implements OnDestroy {
       if (mock.drugId === drugId) {
         const mockDrug = JSON.parse(JSON.stringify(this.mockDrugs.slice(index, index + 1)[0]));
         mockDrug.currentState = DrugState.DRUG_SOLD;
+        mockDrug.currentStateName = DrugStateUtil.getDrugStateName(DrugState.DRUG_SOLD);
         mockDrug.timeStamp = new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
         mockDrug.currentOwner = this.currentUser.userid;
         this.mockDrugs.push(mockDrug);
@@ -463,10 +474,6 @@ export class MockDrugService implements OnDestroy {
       data.next(mockDrugsModel);
     });
   }
-
-  // private replaceDrugInMockDrug(index: number, newDrug: DrugTransaction): DrugTransaction [] {
-  //   return Object.assign([], this.mockDrugs, {index: newDrug});
-  // }
 
   private storeDrugsInLocalStorage() {
     localStorage.setItem('mockDrugs', JSON.stringify(this.mockDrugs));

@@ -6,14 +6,40 @@
     <table mat-table
            [dataSource]="drugs" multiTemplateDataRows
            class="mat-elevation-z8">
-      <ng-container matColumnDef="{{column}}" *ngFor="let column of columnsToDisplay">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase}} </th>
-        <td mat-cell *matCellDef="let drug">
-          <span>{{ drug[column] }}</span>
-          <!-- <span *ngIf="column=='action'">
-            <mat-icon aria-hidden="false" aria-label="delete icon" (click)="deleteOrder(element.orderId)">delete</mat-icon>
-          </span> -->
-        </td>
+
+      <ng-container matColumnDef="drugId">
+        <th mat-header-cell *matHeaderCellDef>Drug Id</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.drugId}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="drugName">
+        <th mat-header-cell *matHeaderCellDef>Drug Name</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.drugName}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.price}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef>Quantity</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.quantity}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="created">
+        <th mat-header-cell *matHeaderCellDef>Created</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.created}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expiryDate">
+        <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.expiryDate}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="currentState">
+        <th mat-header-cell *matHeaderCellDef>Current State</th>
+        <td mat-cell *matCellDef="let drug"> {{drug.currentStateName}} </td>
       </ng-container>
 
       <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
@@ -24,12 +50,12 @@
             <div class="row">
               <!-- Producer create drug -->
               <div class="status-stage status-complete">
-                      <span>
-                        <p>
-                          Drug Created
-                          <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
-                        </p>
-                      </span>
+                <span>
+                  <p>
+                    Drug Created
+                    <mat-icon aria-hidden="false" aria-label="check circle icon">check_circle</mat-icon>
+                  </p>
+                </span>
               </div>
 
               <!-- Producer -->

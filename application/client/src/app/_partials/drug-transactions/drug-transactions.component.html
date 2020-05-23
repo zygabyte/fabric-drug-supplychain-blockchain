@@ -9,27 +9,27 @@
     <!--- Note that these columns can be defined in any order.
           The actual rendered columns are set as a property on the row definition" -->
     <!-- Product ID Column -->
-    <ng-container matColumnDef="DrugName">
-      <th mat-header-cell *matHeaderCellDef> Drug Name </th>
-      <td mat-cell *matCellDef="let element"> {{element.drugName}} </td>
+    <ng-container matColumnDef="drugName">
+      <th mat-header-cell *matHeaderCellDef>Drug Name</th>
+      <td mat-cell *matCellDef="let drug"> {{drug.drugName}} </td>
     </ng-container>
 
     <!-- Modified By Column -->
-    <ng-container matColumnDef="ModifiedBy">
-      <th mat-header-cell *matHeaderCellDef> Modified By </th>
-      <td mat-cell *matCellDef="let element"> {{element.currentOwner}} </td>
+    <ng-container matColumnDef="modifiedBy">
+      <th mat-header-cell *matHeaderCellDef>Modified By</th>
+      <td mat-cell *matCellDef="let drug"> {{drug.currentOwner}} </td>
     </ng-container>
 
     <!-- currentState Column -->
-    <ng-container matColumnDef="CurrentDrugState">
+    <ng-container matColumnDef="currentState">
       <th mat-header-cell *matHeaderCellDef> Action </th>
-      <td mat-cell *matCellDef="let element">{{element.status}}</td>
+      <td mat-cell *matCellDef="let drug">{{drug.currentStateName}}</td>
     </ng-container>
 
     <!-- Timestamp Column -->
-    <ng-container matColumnDef="Timestamp">
+    <ng-container matColumnDef="timestamp">
       <th mat-header-cell *matHeaderCellDef> Time Stamp </th>
-      <td mat-cell *matCellDef="let element"> {{element.timeStamp}} </td>
+      <td mat-cell *matCellDef="let drug"> {{drug.timeStamp}} </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

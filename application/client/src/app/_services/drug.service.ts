@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {catchError} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
 
-import {Drug, DrugTransaction} from '../_models/drug';
+import {Drug, DrugStateUtil, DrugTransaction} from '../_models/drug';
 import {AppConstants} from '../_constants/app-constants';
 import {UserService} from './user.service';
 import {User} from '../_models/user';
@@ -37,7 +37,12 @@ export class DrugService {
 
     return this.httpClient
       .get<ApiModel<DrugTransaction[]>>(AppConstants.baseDrugUrl, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction[]>) => {
+        data.data.forEach(transaction => {
+          transaction.currentStateName = DrugStateUtil.getDrugStateName(transaction.currentState);
+        });
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   queryDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -46,7 +51,10 @@ export class DrugService {
 
     return this.httpClient
       .get<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/${drugId}`, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   queryDrugTransactionHistory(drugId: string): Observable<ApiModel<DrugTransaction[]>> {
@@ -55,7 +63,12 @@ export class DrugService {
 
     return this.httpClient
       .get<ApiModel<DrugTransaction[]>>(`${AppConstants.baseDrugUrl}/drug-history/${drugId}`, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction[]>) => {
+        data.data.forEach(transaction => {
+          transaction.currentStateName = DrugStateUtil.getDrugStateName(transaction.currentState);
+        });
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   createDrug(drug: Drug): Observable<ApiModel<DrugTransaction>> {
@@ -64,7 +77,10 @@ export class DrugService {
 
     return this.httpClient
       .post<ApiModel<DrugTransaction>>(AppConstants.baseDrugUrl, drug, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   manufacturerShipDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -73,7 +89,10 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/manufacturer/ship/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   distributorReceiveDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -82,7 +101,10 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/distributor/receive/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   distributorShipDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -91,7 +113,10 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/distributor/ship/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   wholesalerReceiveDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -100,7 +125,10 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/wholesaler/receive/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   wholesalerShipDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -109,7 +137,10 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/wholesaler/ship/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   retailerReceiveDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -118,7 +149,10 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/retailer/receive/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 
   retailerSellDrug(drugId: string): Observable<ApiModel<DrugTransaction>> {
@@ -127,6 +161,9 @@ export class DrugService {
 
     return this.httpClient
       .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/retailer/sell/${drugId}`, {}, {headers})
-      .pipe(catchError(ErrorHandlers.handleApiError));
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
   }
 }

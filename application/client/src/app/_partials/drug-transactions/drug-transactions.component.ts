@@ -13,7 +13,7 @@ import {MockDrugService} from '../../_services/mock/mock.drug.service';
 export class DrugTransactionsComponent implements OnInit {
 
   drugTransactionHistory: DrugTransaction[];
-  displayedColumns: string[] = ['DrugName', 'ModifiedBy', 'CurrentDrugState', 'Timestamp'];
+  displayedColumns: string[] = ['drugName', 'modifiedBy', 'currentState', 'timestamp'];
   @Input() orderId: string;
   statuses: any;
 

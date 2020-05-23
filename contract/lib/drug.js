@@ -9,14 +9,14 @@ const State = require('../ledger-api/state.js');
 
 // Enumerate drug state values
 const drugState = {
-    DRUG_CREATED: 'DRUG_CREATED',    // manufacturer
-    MANUFACTURER_SHIPPED: 'MANUFACTURER_SHIPPED',    // manufacturer
-    DISTRIBUTOR_RECEIVED: 'DISTRIBUTOR_RECEIVED',   // distributor
-    DISTRIBUTOR_SHIPPED: 'DISTRIBUTOR_SHIPPED',   // distributor
-    WHOLESALER_RECEIVED: 'WHOLESALER_RECEIVED',  // wholesaler
-    WHOLESALER_SHIPPED: 'WHOLESALER_SHIPPED',  // wholesaler
-    RETAILER_RECEIVED: 'RETAILER_RECEIVED',  // retailer
-    DRUG_SOLD: 'DRUG_SOLD' // consumer
+    DRUG_CREATED: 1,    // manufacturer
+    MANUFACTURER_SHIPPED: 2,    // manufacturer
+    DISTRIBUTOR_RECEIVED: 3,   // distributor
+    DISTRIBUTOR_SHIPPED: 4,   // distributor
+    WHOLESALER_RECEIVED: 5,  // wholesaler
+    WHOLESALER_SHIPPED: 6,  // wholesaler
+    RETAILER_RECEIVED: 7,  // retailer
+    DRUG_SOLD: 8 // consumer
 };
 
 /**

@@ -77,13 +77,14 @@ supplyChainRouter.route('/drugs').get(function (request, response) {
     submitTx(request, 'queryDrugs', '')
         .then((queryDrugsResponse) => {
             //  response is already a string;  not a buffer
-            let drugs = queryDrugsResponse;
             response.status(httpStatusCodes.STATUS_SUCCESS);
-            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drugs', data: drugs});
+            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drugs', data: JSON.parse(queryDrugsResponse)});
         }, (error) => {
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
+                "There was a problem getting the list of drugs.");
+            
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send(utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
-                "There was a problem getting the list of drugs."));
+            response.send(errorResponse);
         });
 });
 
@@ -94,16 +95,16 @@ supplyChainRouter.route('/drugs/:id').get(function (request, response) {
         .then((queryDrugResponse) => {
             // process response
             let drug = Drug.fromBuffer(queryDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 'Drug id, ' + request.params.id +
                 ' does not exist or the user does not have access to drug details at this time.');
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_FOUND, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
@@ -113,17 +114,17 @@ supplyChainRouter.route('/drugs/drug-history/:id').get(function (request, respon
     submitTx(request, 'queryDrugTransactionHistory', request.params.id)
         .then((queryDrugHisResponse) => {
             //  response is already a string;  not a buffer
-            let drugHistory = queryDrugHisResponse;
-            logDrugDetails(drugHistory);
+            console.log('drug transaction history');
+            console.log(JSON.parse(queryDrugHisResponse));
             response.status(httpStatusCodes.STATUS_SUCCESS);
-            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug history', data: drugHistory});
+            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug history', data: JSON.parse(queryDrugHisResponse)});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 'Drug id, ' + request.params.id +
                 ' does not exist or the user does not have access to drug history at this time.');
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_FOUND, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
@@ -137,152 +138,152 @@ supplyChainRouter.route('/drugs').post(function (request, response) {
             // process response
             console.log('\nProcess createDrug transaction.');
             let drug = Drug.fromBuffer(result);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully created drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_CREATED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_CREATED,
                 "There was a problem manufacturing the drug.");
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_CREATED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
-/// PUT - /drugs/manufacturer/ship/:id
-supplyChainRouter.route('/drugs/manufacturer/ship/:id').put(function (request, response) {
+/// PATCH - /drugs/manufacturer/ship/:id
+supplyChainRouter.route('/drugs/manufacturer/ship/:id').patch(function (request, response) {
     submitTx (request, 'manufacturerShipDrug', request.params.id)
         .then((manShipDrugResponse) => {
             console.log('Process manufacturerShipDrug transaction.');
             let drug = Drug.fromBuffer(manShipDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'manufacturer successfully shipped drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
                 "There was a problem in the manufacturer shipping the drug," + request.params.id);
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_SHIPPED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
 /// __________________________________Distributor__________________________________
-/// PUT - /drugs/distributor/receive/:id
-supplyChainRouter.route('/drugs/distributor/receive/:id').put(function (request, response) {
+/// PATCH - /drugs/distributor/receive/:id
+supplyChainRouter.route('/drugs/distributor/receive/:id').patch(function (request, response) {
     submitTx (request, 'distributorReceiveDrug', request.params.id)
         .then((disReceiveDrugResponse) => {
             console.log('Process distributorReceiveDrug transaction.');
             let drug = Drug.fromBuffer(disReceiveDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'distributor successfully received drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
                 "There was a problem in the distributor receiving the drug," + request.params.id);
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_RECEIVED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
-/// PUT - /drugs/distributor/ship/:id
-supplyChainRouter.route('/drugs/distributor/ship/:id').put(function (request, response) {
+/// PATCH - /drugs/distributor/ship/:id
+supplyChainRouter.route('/drugs/distributor/ship/:id').patch(function (request, response) {
     submitTx (request, 'distributorShipDrug', request.params.id)
         .then((disShipDrugResponse) => {
             console.log('Process distributorShipDrug transaction.');
             let drug = Drug.fromBuffer(disShipDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'distributor successfully shipped drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
                 "There was a problem in the distributor shipping the drug," + request.params.id);
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_SHIPPED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
 /// __________________________________Wholesaler__________________________________
-/// PUT - /drugs/wholesaler/receive/:id
-supplyChainRouter.route('/drugs/wholesaler/receive/:id').put(function (request, response) {
+/// PATCH - /drugs/wholesaler/receive/:id
+supplyChainRouter.route('/drugs/wholesaler/receive/:id').patch(function (request, response) {
     submitTx (request, 'wholesalerReceiveDrug', request.params.id)
         .then((wholeReceiveDrugResponse) => {
             console.log('Process wholesalerReceiveDrug transaction.');
             let drug = Drug.fromBuffer(wholeReceiveDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'wholesaler successfully received drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
                 "There was a problem in the wholesaler receiving the drug," + request.params.id)
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_RECEIVED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
-/// PUT - /drugs/wholesaler/ship/:id
-supplyChainRouter.route('/drugs/wholesaler/ship/:id').put(function (request, response) {
+/// PATCH - /drugs/wholesaler/ship/:id
+supplyChainRouter.route('/drugs/wholesaler/ship/:id').patch(function (request, response) {
     submitTx (request, 'wholesalerShipDrug', request.params.id)
         .then((wholeShipDrugResponse) => {
             console.log('Process wholesalerShipDrug transaction.');
             let drug = Drug.fromBuffer(wholeShipDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'wholesaler successfully shipped drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
                 "There was a problem in the wholesaler shipping the drug," + request.params.id);
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_SHIPPED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
 
 /// __________________________________Retailer__________________________________
-/// PUT - /drugs/retailer/receive/:id
-supplyChainRouter.route('/drugs/retailer/receive/:id').put(function (request, response) {
+/// PATCH - /drugs/retailer/receive/:id
+supplyChainRouter.route('/drugs/retailer/receive/:id').patch(function (request, response) {
     submitTx (request, 'retailerReceiveDrug', request.params.id)
         .then((retReceiveDrugResponse) => {
             console.log('Process retailerReceiveDrug transaction.');
             let drug = Drug.fromBuffer(retReceiveDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'retailer successfully received drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
                 "There was a problem in the retailer receiving the drug," + request.params.id);
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_RECEIVED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
 
-/// PUT - /drugs/retailer/sell/:id
-supplyChainRouter.route('/drugs/retailer/sell/:id').put(function (request, response) {
+/// PATCH - /drugs/retailer/sell/:id
+supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, response) {
     submitTx (request, 'retailerSellDrug', request.params.id)
         .then((retSellDrugResponse) => {
             console.log('Process retailerSellDrug transaction.');
             let drug = Drug.fromBuffer(retSellDrugResponse);
-            logDrugDetails(drug);
+            console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'retailer successfully sold drug', data: drug});
         }, (error) => {
-            const errorMessage = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SOLD,
+            const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SOLD,
                 "There was a problem in the retailer selling the drug," + request.params.id);
             
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-            response.send({code: appCodes.DRUG_NOT_SOLD, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
@@ -337,11 +338,11 @@ supplyChainRouter.route('users/register').post(function (request, response) {
                 response.send({code: appCodes.INVALID_USER_HEADER, message: headerError, data: null});
             });
     } catch (error) {
-        const regError = utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
+        const errorResponse = utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
             "Internal server error; User, " + userId + " could not be registered.");
         
         response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-        response.send({code: appCodes.USER_NOT_REGISTERED, message: regError, data: null});
+        response.send(errorResponse);
     }
 });
 
@@ -367,11 +368,11 @@ supplyChainRouter.route('users/enroll').post(function (request, response) {
             response.send({code: appCodes.USER_NOT_ENROLLED, message: errorMessage, data: null});
         });
     }, usernamePassErr => {
-        const errorMessage = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_USER_HEADER,
+        const errorResponse = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_USER_HEADER,
             "Invalid header;  User, " + request.username + " could not be enrolled.");
         
         response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-        response.send({code: appCodes.INVALID_USER_HEADER, message: errorMessage, data: null}); // this is made possible because the request object property of user name and password has been added (in getUsernamePassword).
+        response.send(errorResponse); // this is made possible because the request object property of user name and password has been added (in getUsernamePassword).
         // hence we can access it because it points to the same reference in memory
     });
 });
@@ -395,11 +396,11 @@ supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response
                 response.send({code: appCodes.USER_NOT_ENROLLED, message: errorMessage, data: null});
             });
         }, usernamePwdErr => {
-            const errorMessage = utils.prepareErrorResponse(usernamePwdErr, appCodes.INVALID_USER_HEADER,
+            const errorResponse = utils.prepareErrorResponse(usernamePwdErr, appCodes.INVALID_USER_HEADER,
                 "Invalid header; Error checking enrollment for user, " + userId);
             
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-            response.send({code: appCodes.INVALID_USER_HEADER, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 })
 
@@ -420,10 +421,10 @@ supplyChainRouter.route('/users').get(function (request, response) {
                 response.send({code: appCodes.USER_NOT_FOUND, message: errorMessage, data: null});
             });
         }, (reqError) => {
-            const errorMessage = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
+            const errorResponse = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
                 "Invalid header;  User, " + request.username + " could not be enrolled.");
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-            response.send({code: appCodes.INVALID_USER_HEADER, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
 
@@ -442,43 +443,35 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
                         response.status(httpStatusCodes.STATUS_SUCCESS);
                         response.send({code: appCodes.SUCCESS, message: 'successfully retrieved user', data: user});
                     }, (userErr) => {
-                        const errorMessage = utils.prepareErrorResponse(userErr, appCodes.USER_NOT_FOUND,
+                        const errorResponse = utils.prepareErrorResponse(userErr, appCodes.USER_NOT_FOUND,
                             "Could not get user details for user, " + newRequest.params.id);
                         
                         response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-                        response.send({code: appCodes.USER_NOT_FOUND, message: errorMessage, data: null});
+                        response.send(errorResponse);
                     });
                 } else {
                     let error = {};
-                    const errorMessage = utils.prepareErrorResponse(error, appCodes.USER_NOT_ENROLLED,
+                    const errorResponse = utils.prepareErrorResponse(error, appCodes.USER_NOT_ENROLLED,
                         "Verify if the user is registered and enrolled.");
                     
                     response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-                    response.send({code: appCodes.USER_NOT_ENROLLED, message: errorMessage, data: null});
+                    response.send(errorResponse);
                 }
             }, (enrolledErr) => {
-                const errorMessage = utils.prepareErrorResponse(enrolledErr, appCodes.USER_NOT_ENROLLED,
+                const errorResponse = utils.prepareErrorResponse(enrolledErr, appCodes.USER_NOT_ENROLLED,
                     "Problem checking for user enrollment.");
                 
                 response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-                response.send({code: appCodes.USER_NOT_ENROLLED, message: errorMessage, data: null});
+                response.send(errorResponse);
             });
         }, (reqError) => {
-            const errorMessage = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
+            const errorResponse = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
                 "Invalid header;  User, " + userId + " could not be enrolled.");
             
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-            response.send({code: appCodes.INVALID_USER_HEADER, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
 });
-
-
-//____________________________________________________________________________UTILITIES____________________________________________________________________________
-function logDrugDetails(drug){
-    console.log(`drug ${drug.drugId} : price = ${drug.price}, quantity = ${drug.quantity}, expiryDate = ${drug.expiryDate}, 
-                        manufacturerId = ${drug.manufacturerId}, distributorId = ${drug.distributorId}, 
-                        wholesalerId = ${drug.wholesalerId}, retailerId = ${drug.retailerId},  currentState = ${drug.currentState}`);
-}
 
 
 module.exports = supplyChainRouter;

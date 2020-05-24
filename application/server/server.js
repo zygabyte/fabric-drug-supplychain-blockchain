@@ -27,7 +27,7 @@ app.use(cors());
 app.use('/api', supplyChainRoutes);
 
 app.get('/ping', (req, res) => {
-    res.send('Response from Generic Supply Chain backend server');
+    res.send('Response from Drug Supply Chain backend server');
 });
 
 async function main() {

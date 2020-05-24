@@ -1,7 +1,7 @@
 {
-    "name": "gensupplychainnet",
+    "name": "drugsupplychainnet",
     "version": "0.0.1",
-    "description": "My Smart Contract",
+    "description": "Smart Contract for the drug supply chain",
     "main": "index.js",
     "engines": {
         "node": ">=8",

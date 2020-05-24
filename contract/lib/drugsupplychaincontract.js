@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 // Fabric smart contract classes
 const { Contract, Context } = require('fabric-contract-api');
 
-// drug supplychainnet specific classes
+// drugsupplychainnet specific classes
 const Drug = require('./drug');
 const supplyChainActors = require('./constants').SUPPLY_CHAIN_ACTORS;
 const smartContractEvents = require('./constants').SMART_CONTRACT_EVENTS;
@@ -55,7 +55,7 @@ class DrugSupplyChainContract extends Contract {
      * @param {Context} ctx the transaction context
      * @param {string} drugId
      * @param {string} drugName
-     * @param {float} price
+     * @param {integer} price
      * @param {integer} quantity
      * @param {string} expiryDate
      * @param {string} prescription
@@ -68,8 +68,7 @@ class DrugSupplyChainContract extends Contract {
      * @param {string} currentOwner
      * @param {string} transactionId
      * @param {boolean} isDeleted
-     * Usage: submitTransaction ('orderProduct', 'Order001', 'mango', 100.00, 100, 'farm1', 'walmart')
-     * Usage: ["Order100", "mango", "10.00", "102", "farm1", "walmart"]
+     * Usage: submitTransaction ('createDrug', 'drug001', 'panadol', 1900, 100, 'farm1', 'walmart')
      */
     async createDrug(ctx, args) {
         // Access Control: This transaction should only be invoked by a Manufacturer
@@ -92,35 +91,25 @@ class DrugSupplyChainContract extends Contract {
         
         const userId = await this.getCurrentUserId(ctx);
 
-        // Create a new Order object
+        // Create a new Drug object
         let drug = Drug.createInstance(drugId);
         drug.drugName = drugDetails.drugName;
         drug.price = drugDetails.price;
         drug.quantity = drugDetails.quantity;
         drug.expiryDate = drugDetails.expiryDate;
         drug.prescription = drugDetails.prescription;
-        drug.created = drugDetails.created;
-        drug.manufacturerId = userId;
+        drug.created = this.getCurrentDateTime();
         drug.setStateToDrugCreated();
+        drug.manufacturerId = userId;
         drug.currentOwner = userId;
         drug.timeStamp = this.getCurrentDateTime();
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
 
-        // Define and set event
-        const event_obj = drug;
-        event_obj.event_type = "createDrug";   //  add the field "event_type" for the event to be processed
-
-        try {
-            await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, event_obj.toBuffer());
-        }
-        catch (error) {
-            console.log("Error in sending event");
-        }
-        finally {
-            console.log("Attempted to send event = ", drug);
-        }
+        const queryEvent = this.createEvent(drugId, userId, 'createDrug');
+        
+        await this.setEvent(ctx, queryEvent);
 
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
@@ -132,7 +121,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  manufacturerShipDrug ('drug001')
+     * Usage:  submitTransaction ('manufacturerShipDrug', 'drug001')
      */
     async manufacturerShipDrug(ctx, drugId) {
         console.info('============= manufacturerShipDrug ===========');
@@ -170,6 +159,10 @@ class DrugSupplyChainContract extends Contract {
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
 
+        const queryEvent = this.createEvent(drugId, userId, 'manufacturerShipDrug');
+
+        await this.setEvent(ctx, queryEvent);
+
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
     }
@@ -183,7 +176,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  distributorReceiveDrug ('drug001')
+     * Usage:  submitTransaction ('distributorReceiveDrug', 'drug001')
      */
     async distributorReceiveDrug(ctx, drugId) {
         console.info('============= distributorReceiveDrug ===========');
@@ -221,6 +214,10 @@ class DrugSupplyChainContract extends Contract {
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
 
+        const queryEvent = this.createEvent(drugId, userId, 'distributorReceiveDrug');
+
+        await this.setEvent(ctx, queryEvent);
+
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
     }
@@ -230,7 +227,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  distributorShipDrug ('drug001')
+     * Usage:  submitTransaction ('distributorShipDrug', 'drug001')
      */
     async distributorShipDrug(ctx, drugId) {
         console.info('============= distributor ship drug ===========');
@@ -268,6 +265,10 @@ class DrugSupplyChainContract extends Contract {
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
 
+        const queryEvent = this.createEvent(drugId, userId, 'distributorShipDrug');
+
+        await this.setEvent(ctx, queryEvent);
+        
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
     }
@@ -279,7 +280,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  wholesalerReceiveDrug ('drug001')
+     * Usage: submitTransaction ('wholesalerReceiveDrug', 'drug001')
      */
     async wholesalerReceiveDrug(ctx, drugId) {
         console.info('============= wholesaler receive drug ===========');
@@ -316,6 +317,10 @@ class DrugSupplyChainContract extends Contract {
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
+        
+        const queryEvent = this.createEvent(drugId, userId, 'wholesalerReceiveDrug');
+
+        await this.setEvent(ctx, queryEvent);
 
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
@@ -326,7 +331,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  wholesalerShipDrug ('drug001')
+     * Usage:  submitTransaction ('wholesalerShipDrug', 'drug001')
      */
     async wholesalerShipDrug(ctx, drugId) {
         console.info('============= wholesaler ship drug ===========');
@@ -363,7 +368,11 @@ class DrugSupplyChainContract extends Contract {
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
+        
+        const queryEvent = this.createEvent(drugId, userId, 'wholesalerShipDrug');
 
+        await this.setEvent(ctx, queryEvent);
+        
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
     }
@@ -375,7 +384,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  retailerReceiveDrug ('drug001')
+     * Usage:  submitTransaction ('retailerReceiveDrug', 'drug001')
      */
     async retailerReceiveDrug(ctx, drugId) {
         console.info('============= retailer receive drug ===========');
@@ -412,6 +421,10 @@ class DrugSupplyChainContract extends Contract {
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
+        
+        const queryEvent = this.createEvent(drugId, userId, 'retailerReceiveDrug');
+
+        await this.setEvent(ctx, queryEvent);
 
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
@@ -422,7 +435,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  retailerSellDrug ('drug001')
+     * Usage:  submitTransaction ('retailerSellDrug', 'drug001')
      */
     async retailerSellDrug(ctx, drugId) {
         console.info('============= retailer sell drug ===========');
@@ -459,6 +472,10 @@ class DrugSupplyChainContract extends Contract {
 
         // Update ledger
         await ctx.stub.putState(drugId, drug.toBuffer());
+        
+        const queryEvent = this.createEvent(drugId, userId, 'retailerSellDrug');
+
+        await this.setEvent(ctx, queryEvent);
 
         // Must return a serialized drug to caller of smart contract
         return drug.toBuffer();
@@ -472,7 +489,7 @@ class DrugSupplyChainContract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @param {String}  drugId
-     * Usage:  getDrug ('drug001')
+     * Usage:  submitTransaction ('queryDrug', 'drug001')
      *
      */
     async queryDrug(ctx, drugId) {
@@ -484,47 +501,43 @@ class DrugSupplyChainContract extends Contract {
 
         // Access Control: This transaction should only be invoked by a designated retailer
         const userType = await this.getCurrentUserType(ctx);
+        const userId = await this.getCurrentUserId(ctx);
 
         if (userType === supplyChainActors.consumer)
             throw new Error('Error Message from queryDrug: This consumer user cannot query drug');
 
         const drugAsBytes = await ctx.stub.getState(drugId);
+        
+        const queryEvent = this.createEvent(drugId, userId, 'queryDrug');
 
-        //  Set an event (irrespective of whether the order existed or not)
-        // define and set EVENT_TYPE
-        let queryEvent = {
-            type: smartContractEvents.EVENT_TYPE,
-            orderId: drugId,
-            desc: "Query Order was executed for " + drugId
-        };
-        await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
+        await this.setEvent(ctx, queryEvent);
 
         if (!drugAsBytes || drugAsBytes.length === 0) {
-            throw new Error(`Error Message from queryOrder: Order with orderId = ${drugId} does not exist.`);
+            throw new Error(`Error Message from queryDrug: Drug with drugId = ${drugId} does not exist.`);
         }
 
         // Convert drug so we can modify fields
         const drug = Drug.deserialize(drugAsBytes);
 
-        // Return a serialized order to caller of smart contract
+        // Return a serialized drug to caller of smart contract
         return drug.toBuffer();
     }
 
 
     /**
-     * getDrug
+     * queryDrugs
      *
      * @param {Context} ctx the transaction context
-     * @param {String}  drugId
-     * Usage:  getDrug ('drug001')
+     * Usage:  submitTransaction ('queryDrugs')
      *
      */
     async queryDrugs(ctx) {
         console.info('============= queryDrugs ===========');
 
         const userType = await this.getCurrentUserType(ctx);
+        const userId = await this.getCurrentUserId(ctx);
       
-       if (userType === supplyChainActors.consumer)
+        if (userType === supplyChainActors.consumer)
             throw new Error('Error Message from queryDrugs: This consumer user cannot query drugs');
 
         const queryString = {
@@ -534,6 +547,18 @@ class DrugSupplyChainContract extends Contract {
         console.log("Info Message from queryDrugs: queryString = ", queryString);
 
         const iterator = await ctx.stub.getQueryResult(JSON.stringify(queryString));
+
+        //  Set an event (irrespective of whether the drugs existed or not)
+        // define and set EVENT_TYPE
+        let queryEvent = {
+            type: smartContractEvents.EVENT_TYPE,
+            userId: userId,
+            eventType: 'queryDrugs',
+            desc: `queryDrugs was executed at ${this.getCurrentDateTime()} by ${userId}`
+        };
+        await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
+        
+        await this.setEvent(ctx, queryEvent);
 
         console.log("Info Message from queryDrugs: iterator = ", iterator);
 
@@ -561,12 +586,20 @@ class DrugSupplyChainContract extends Contract {
                 console.log('end of data');
                 await iterator.close();
                 console.info(allDrugs);
-                return JSON.stringify(allDrugs);
+                return allDrugs;
             }
         }
     }
 
 
+    /**
+     * queryDrugTransactionHistory
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String}  drugId
+     * Usage:  submitTransaction ('queryDrugTransactionHistory', 'drug001')
+     *
+     */
     async queryDrugTransactionHistory(ctx, drugId) {
         console.info('============= queryDrugTransactionHistory ===========');
         if (drugId.length < 1) {
@@ -576,6 +609,13 @@ class DrugSupplyChainContract extends Contract {
 
         // Get list of transactions for drug
         const iterator = await ctx.stub.getHistoryForKey(drugId);
+;
+        const userId = await this.getCurrentUserId(ctx);
+        
+        const queryEvent = this.createEvent(drugId, userId, 'queryDrugTransactionHistory');
+
+        await this.setEvent(ctx, queryEvent);
+        
         const drugHistory = [];
 
         while (true) {
@@ -592,7 +632,7 @@ class DrugSupplyChainContract extends Contract {
                 }
                 
                 record.transactionId = history.value.tx_id;
-                record.isDeleted = history.value.is_delete.toString();
+                record.isDeleted = history.value.is_delete;
 
                 // Add to array of transaction history on drug
                 drugHistory.push(record);
@@ -645,7 +685,31 @@ class DrugSupplyChainContract extends Contract {
     }
     
     getCurrentDateTime() {
-        return new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'});
+        return new Date().toLocaleString();
+    }
+    
+    createEvent(drugId, userId, eventType){
+        //  Set an event (irrespective of whether the drug existed or not)
+        // define and set EVENT_TYPE
+        return {
+            type: smartContractEvents.EVENT_TYPE,
+            drugId: drugId,
+            userId: userId,
+            eventType: eventType,
+            desc: `${eventType} was executed for ${drugId} at ${this.getCurrentDateTime()} by ${userId}`
+        };
+    }
+    
+    async setEvent(ctx, queryEvent){
+        try {
+            await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
+        }
+        catch (error) {
+            console.log(`Error in sending event ${queryEvent}`);
+        }
+        finally {
+            console.log(`Attempted to send event ${queryEvent}`);
+        }
     }
 }
 

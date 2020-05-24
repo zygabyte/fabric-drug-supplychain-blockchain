@@ -12,14 +12,14 @@ const { FileSystemWallet, Gateway, User, X509WalletMixin } = require('fabric-net
 const FabricCAServices = require('fabric-ca-client');
 
 //  global variables for HLFabric
-var gateway;
-var network;
-var contract = null;
-var configdata; // config.json
-var wallet; // ../../gateway/local/gen_local_wallet   -> it eventually stores the wallet of the admin
-var bLocalHost; // true
-var fabricConnProfile;  // ../../gateway/local/fabric_connection.json   -> the fabric connection profile but parsed as a json object
-var orgMspId;  // Org1MSP
+let gateway;
+let network;
+let contract = null;
+let configData; // config.json
+let wallet; // ../../gateway/local/gen_local_wallet   -> it eventually stores the wallet of the admin
+let bLocalHost; // true
+let fabricConnProfile;  // ../../gateway/local/fabric_connection.json   -> the fabric connection profile but parsed as a json object
+let orgMspId;  // Org1MSP
 
 const smartContractEvents = require('./constants').SMART_CONTRACT_EVENTS; //  HLFabric EVENT
 const defaultUser = require('./constants').DEFAULT_USER; //  default admin user
@@ -29,8 +29,8 @@ const utils = {};
 // Main program function
 
 utils.prepareErrorResponse = (error, code, message) => {
-
     let errorMsg;
+
     try {
         // Pull specific fabric transaction error message out of error stack
         let entries = Object.entries(error);
@@ -40,9 +40,10 @@ utils.prepareErrorResponse = (error, code, message) => {
         errorMsg = null;
     }
 
-    let result = { "code": code, "message": errorMsg?errorMsg:message, "error": error };
+    let result = { "code": code, "message": errorMsg ? errorMsg : message, "error": error };
     console.log("utils.js:prepareErrorResponse(): " + message);
     console.log(result);
+    
     return result;
 }
 
@@ -63,25 +64,27 @@ utils.connectGatewayFromConfig = async () => {
         //  5.  username - identity to be used for performing transactions
 
         const platform = process.env.PLATFORM || 'LOCAL';
-        if (platform == 'IBP') {
-            configdata = JSON.parse(fs.readFileSync('../../gateway/ibp/config.json', 'utf8'));
+        if (platform === 'IBP') {
+            configData = JSON.parse(fs.readFileSync('../../gateway/ibp/config.json', 'utf8'));
             console.log("Platform = " + platform);
             bLocalHost = false;
         } else { // PLATFORM = LOCAL
-            configdata = JSON.parse(fs.readFileSync('../../gateway/local/config.json', 'utf8'));
+            configData = JSON.parse(fs.readFileSync('../../gateway/local/config.json', 'utf8'));
             console.log("Platform = " + platform);
             bLocalHost = true;
         }
 
-        const walletpath = configdata["wallet"];
-        console.log("walletpath = " + walletpath);
+        const walletPath = configData["wallet"];
+        console.log("walletpath = " + walletPath);
 
-        // Parse the connection profile. This would be the path to the file downloaded
-        // from the IBM Blockchain Platform operational console.
-        const ccpPath = path.resolve(__dirname, configdata["connection_profile_filename"]);
-        var defaultUserId = process.env.FABRIC_USER_ID || defaultUser.userId; // the default which is the admin (for local)
-        var defaultPassword = process.env.FABRIC_USER_SECRET || defaultUser.userSecret;
-        var defaultUserType = process.env.FABRIC_USER_TYPE || defaultUser.userType;
+        // Parse the connection profile. This would be the path to the file downloaded from the IBM Blockchain Platform operational console, 
+        // if using IBM platform to execute
+        const ccpPath = path.resolve(__dirname, configData["connection_profile_filename"]);
+        
+        const defaultUserId = process.env.FABRIC_USER_ID || defaultUser.userId; // the default which is the admin (for local)
+        const defaultPassword = process.env.FABRIC_USER_SECRET || defaultUser.userSecret;
+        const defaultUserType = process.env.FABRIC_USER_TYPE || defaultUser.userType;
+        
         console.log('user: ' + defaultUserId + ", defaultPassword: ", defaultPassword + ", defaultUserType: ", defaultUserType);
 
         // Load connection profile; will be used to locate a gateway
@@ -92,7 +95,7 @@ utils.connectGatewayFromConfig = async () => {
         console.log('MSP ID: ' + orgMspId);
 
         // Open path to the identity wallet
-        wallet = new FileSystemWallet(walletpath);
+        wallet = new FileSystemWallet(walletPath);
 
         const idExists = await wallet.exists(defaultUserId);
         if (!idExists) { // creating a default admin wallet to be used in case one does not exist
@@ -111,19 +114,20 @@ utils.connectGatewayFromConfig = async () => {
         });
 
         // Access channel: channel_name
-        console.log('Use network channel: ' + configdata["channel_name"]); // -> network channel - mychannel
+        console.log('Use network channel: ' + configData["channel_name"]); // -> network channel - mychannel
 
         // Get addressability to the smart contract as specified in config
-        network = await gateway.getNetwork(configdata["channel_name"]);
-        console.log('Use ' + configdata["smart_contract_name"] + ' smart contract.');
+        network = await gateway.getNetwork(configData["channel_name"]);
+        console.log('Use ' + configData["smart_contract_name"] + ' smart contract.');
 
-        //  this variable, contract will be used in subsequent calls to submit transactions to Fabric
-        contract = await network.getContract(configdata["smart_contract_name"]);
+        // contract will be used in subsequent calls to submit transactions to Fabric
+        contract = await network.getContract(configData["smart_contract_name"]);
 
     } catch (error) {
         console.log('Error connecting to Fabric network. ' + error.toString());
     } finally {
     }
+    
     return contract;
 }
 
@@ -135,20 +139,21 @@ utils.events = async () => {
     //  client -> channel -> peer -> eventHub
 
     const client = gateway.getClient();
-    var channel = client.getChannel(configdata["channel_name"]);
-    var peers = channel.getChannelPeers();
-    if (peers.length == 0) {
-        throw new Error("Error after call to channel.getChannelPeers(): Channel has no peers !");
+    const channel = client.getChannel(configData["channel_name"]);
+    const peers = channel.getChannelPeers();
+    if (peers.length === 0) {
+        throw new Error("Error after call to channel.getChannelPeers(): Channel has no peers!");
     }
 
     console.log("Connecting to event hub..." + peers[0].getName());
+    
     //  Assuming that we want to connect to the first peer in the peers list
-    var channel_event_hub = channel.getChannelEventHub(peers[0].getName());
+    const channel_event_hub = channel.getChannelEventHub(peers[0].getName());
 
     // to see the event payload, use 'true' in the call to channel_event_hub.connect(boolean)
     channel_event_hub.connect(true);
 
-    let event_monitor = new Promise((resolve, reject) => {
+    const event_monitor = new Promise((resolve, reject) => {
         /*  Sample usage of registerChaincodeEvent
         registerChaincodeEvent ('chaincodename', 'regularExpressionForEventName',
                callbackfunction(...) => {...},
@@ -156,7 +161,7 @@ utils.events = async () => {
                // options:
                {startBlock:23, endBlock:30, unregister: true, disconnect: true}
         */
-        var regid = channel_event_hub.registerChaincodeEvent(configdata["smart_contract_name"], smartContractEvents.EVENT_TYPE,
+        const regid = channel_event_hub.registerChaincodeEvent(configData["smart_contract_name"], smartContractEvents.EVENT_TYPE,
             (event, block_num, txnid, status) => {
                 // This callback will be called when there is a chaincode event name
                 // within a block that will match on the second parameter in the registration
@@ -182,23 +187,22 @@ utils.events = async () => {
 
 utils.submitTx = async(contract, txName, ...args) => {
     console.log(">>>utils.submitTx..."+txName+" ("+args+")");
-    let result = contract.submitTransaction(txName, ...args);
-    return result.then (response => {
-        // console.log ('Transaction submitted successfully;  Response: ', response.toString());
-        console.log ('utils.js: Transaction submitted successfully');
+    const result = contract.submitTransaction(txName, ...args);
+    return result.then(response => {
+        console.log ('utils.js: submitTx -> Transaction submitted successfully. Response: ', response.toString());
         return Promise.resolve(response.toString());
     },(error) =>
         {
-          console.log ('utils.js: Error:' + error.toString());
+          console.log ('utils.js: submitTx -> Error:' + error.toString());
           return Promise.reject(error);
         });
 }
 
 //  function registerUser
 //  Purpose: Utility function for registering users with HL Fabric CA.
-utils.registerUser = async (userid, userpwd, usertype, adminIdentity) => {
+utils.registerUser = async (userId, userPwd, userType, adminIdentity) => {
     console.log("\n------------  utils.registerUser ---------------");
-    console.log("\n userid: " + userid + ", pwd: " + userpwd + ", usertype: " + usertype)
+    console.log("\n userid: " + userId + ", pwd: " + userPwd + ", usertype: " + userType)
 
     const gateway = new Gateway();
 
@@ -211,16 +215,16 @@ utils.registerUser = async (userid, userpwd, usertype, adminIdentity) => {
     const caURL = CAs[fabricCAKey].url;
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
 
-    var newUserDetails = {
-        enrollmentID: userid,
-        enrollmentSecret: userpwd,
+    const newUserDetails = {
+        enrollmentID: userId,
+        enrollmentSecret: userPwd,
         role: "client",
         //affiliation: orgMspId,
         //profile: 'tls',
         attrs: [
             {
                 "name": "usertype",
-                "value": usertype,
+                "value": userType,
                 "ecert": true
             }],
         maxEnrollments: 5
@@ -252,7 +256,7 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
     const caURL = CAs[fabricCAKey].url; // certificateAuthorities[Org1CA].url => http://localhost:17050
     const ca = new FabricCAServices(caURL, { trustedRoots: [], verify: false });
 
-    var newUserDetails = {
+    const newUserDetails = {
         enrollmentID: userid,
         enrollmentSecret: userpwd,
         attrs: [
@@ -266,7 +270,7 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
     // enroll onto the network and then import 
     return ca.enroll(newUserDetails).then(enrollment => {
         //console.log("\n Successful enrollment; Data returned by enroll", enrollment.certificate);
-        var identity = X509WalletMixin.createIdentity(orgMspId, enrollment.certificate, enrollment.key.toBytes());
+        const identity = X509WalletMixin.createIdentity(orgMspId, enrollment.certificate, enrollment.key.toBytes());
         return wallet.import(userid, identity).then(notused => {
             console.log('msg: Successfully enrolled user, ' + userid + ' and imported into the wallet');
             console.log('notused', notused);
@@ -299,19 +303,19 @@ utils.setUserContext = async (userid, pwd) => {
     // Verify if user is already enrolled
     const userExists = await wallet.exists(userid);
     if (!userExists) {
-        console.log("An identity for the user: " + userid + " does not exist in the wallet");
+        console.log(`An identity for the user: ${userid} does not exist in the wallet`);
         console.log('Enroll user before retrying');
-        throw ("Identity does not exist for userid: " + userid);
+        throw (`Identity does not exist for userid: ${userid}`);
     }
 
     try {
         // Connect to gateway using application specified parameters
-        console.log('Connect to Fabric gateway with userid:' + userid);
+        console.log(`Connect to Fabric gateway with userid: ${userid}`);
         let userGateway = new Gateway();
         await userGateway.connect(fabricConnProfile, { identity: userid, wallet: wallet, discovery: { enabled: true, asLocalhost: bLocalHost } });
 
-        network = await userGateway.getNetwork(configdata["channel_name"]);
-        contract = await network.getContract(configdata["smart_contract_name"]);
+        network = await userGateway.getNetwork(configData["channel_name"]);
+        contract = await network.getContract(configData["smart_contract_name"]);
 
         return contract;
     }
@@ -331,23 +335,37 @@ utils.isUserEnrolled = async (userid) => {
 //  Purpose: get specific registered user
 utils.getUser = async (userid, adminIdentity) => {
     console.log(">>>getUser...");
+    
     const gateway = new Gateway();
     // Connect to gateway as admin
     await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
-    let client = gateway.getClient();
-    let fabric_ca_client = client.getCertificateAuthority();
-    let idService = fabric_ca_client.newIdentityService();
-    let user = await idService.getOne(userid, gateway.getCurrentIdentity());
-    let result = {"id": userid};
+    
+    const client = gateway.getClient();
+    const fabric_ca_client = client.getCertificateAuthority();
+    const idService = fabric_ca_client.newIdentityService();
+    const user = await idService.getOne(userid, gateway.getCurrentIdentity());
+    const result = {"id": userid};
 
     // for admin, usertype is "admin";
     if (userid === defaultUser.userId) {
         result.usertype = userid;
     } else { // look through user attributes for "usertype"
-        let j = 0;
-        while (user.result.attrs[j].name !== "usertype") j++;
-            result.usertype = user.result.attrs[j].value;
+
+        if (user.result && user.result.attrs){
+            const attributes = user.result.attrs;
+
+            if (attributes.length > 0){
+                // look through all attributes for one called "usertype"
+                for (let i = 0; i < attributes.length; i++) {
+                    if (attributes[i].name === "usertype") {
+                        result.usertype = attributes[i].value;
+                        break;
+                    }
+                }
+            }
+        }
     }
+    
     console.log (result);
     return Promise.resolve(result);
 }  //  end of function getUser
@@ -359,43 +377,43 @@ utils.getAllUsers = async (adminIdentity) => {
 
     // Connect to gateway as admin
     await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
-    let client = gateway.getClient();
-    let fabric_ca_client = client.getCertificateAuthority();
-    let idService = fabric_ca_client.newIdentityService();
-    let user = gateway.getCurrentIdentity();
-    let userList = await idService.getAll(user);
-    let identities = userList.result.identities;
-    let result = [];
-    let tmp;
+    
+    const client = gateway.getClient();
+    const fabric_ca_client = client.getCertificateAuthority();
+    const idService = fabric_ca_client.newIdentityService();
+    const user = gateway.getCurrentIdentity();
+    const userList = await idService.getAll(user);
+    const identities = userList.result.identities;
+    const allUsers = [];
+    let tmpUser;
     let attributes;
 
     // for all identities
-    for (var i = 0; i < identities.length; i++) {
-        tmp = {};
-        tmp.id = identities[i].id;
-        tmp.usertype = "";
+    for (let i = 0; i < identities.length; i++) {
+        tmpUser = {};
+        tmpUser.id = identities[i].id;
+        tmpUser.usertype = "";
 
-        if (tmp.id === defaultUser.userId)
-            tmp.usertype = tmp.id;
+        if (tmpUser.id === defaultUser.userId)
+            tmpUser.usertype = tmpUser.id;
         else {
             attributes = identities[i].attrs;
-            // look through all attributes for one called "usertype"
-            for (var j = 0; j < attributes.length; j++)
-                if (attributes[j].name === "usertype") {
-                    tmp.usertype = attributes[j].value;
-                    break;
+            
+            if (attributes && attributes.length > 0){
+                // look through all attributes for one called "usertype"
+                for (let j = 0; j < attributes.length; j++){
+                    if (attributes[j].name === "usertype") {
+                        tmpUser.usertype = attributes[j].value;
+                        break;
+                    } 
                 }
+            }
         }
-        result.push(tmp);
+        
+        allUsers.push(tmpUser);
     }
-    return result;
+    
+    return allUsers;
 }  //  end of function getAllUsers
-
-//  function getRandomNum
-//  Purpose: Provide a random tracking number for the createShipment transaction
-utils.getRandomNum = () => {
-    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
-    return `${s4()}${s4()}${s4()}${s4()}`
-}
 
 module.exports = utils;

@@ -323,19 +323,19 @@ supplyChainRouter.route('users/register').post(function (request, response) {
                         response.status(httpStatusCodes.STATUS_SUCCESS);
                         response.send({code: appCodes.SUCCESS, message: 'successfully registered user', data: result}); // return back the password
                     }, (registerError) => {
-                        const regError = utils.prepareErrorResponse(registerError, appCodes.USER_NOT_REGISTERED,
+                        const errorResponse = utils.prepareErrorResponse(registerError, appCodes.USER_NOT_REGISTERED,
                             "User, " + userId + " could not be registered. "
                             + "Verify if calling identity has admin privileges.");
                         
                         response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-                        response.send({code: appCodes.USER_NOT_REGISTERED, message: regError, data: null});
+                        response.send(errorResponse);
                     });
             }, usernamePassErr => {
-                const headerError = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_HEADER,
+                const errorResponse = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_HEADER,
                     "Invalid header;  User, " + userId + " could not be registered.")
                 
                 response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-                response.send({code: appCodes.INVALID_USER_HEADER, message: headerError, data: null});
+                response.send(errorResponse);
             });
     } catch (error) {
         const errorResponse = utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
@@ -361,11 +361,11 @@ supplyChainRouter.route('users/enroll').post(function (request, response) {
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'successfully enrolled user', data: enrolledUser});
         }, enrolledError => {
-            const errorMessage = utils.prepareErrorResponse(enrolledError, appCodes.USER_NOT_ENROLLED,
+            const errorResponse = utils.prepareErrorResponse(enrolledError, appCodes.USER_NOT_ENROLLED,
                 "User, " + newRequest.username + " could not be enrolled. Check that user is registered.");
             
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-            response.send({code: appCodes.USER_NOT_ENROLLED, message: errorMessage, data: null});
+            response.send(errorResponse);
         });
     }, usernamePassErr => {
         const errorResponse = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_USER_HEADER,
@@ -389,11 +389,11 @@ supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response
                 response.status(httpStatusCodes.STATUS_SUCCESS);
                 response.send({code: appCodes.SUCCESS, message: 'successfully retrieved enrollment status', data: isEnrolled});
             }, enrolledError => {
-                const errorMessage = utils.prepareErrorResponse(enrolledError, appCodes.USER_NOT_ENROLLED,
+                const errorResponse = utils.prepareErrorResponse(enrolledError, appCodes.USER_NOT_ENROLLED,
                     "Error checking enrollment for user, " + userId);
                 
                 response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
-                response.send({code: appCodes.USER_NOT_ENROLLED, message: errorMessage, data: null});
+                response.send(errorResponse);
             });
         }, usernamePwdErr => {
             const errorResponse = utils.prepareErrorResponse(usernamePwdErr, appCodes.INVALID_USER_HEADER,
@@ -414,15 +414,16 @@ supplyChainRouter.route('/users').get(function (request, response) {
                 response.status(httpStatusCodes.STATUS_SUCCESS);
                 response.send({code: appCodes.SUCCESS, message: 'successfully retrieved users', data: allUsers});
             }, (allUsersErr) => {
-                const errorMessage = utils.prepareErrorResponse (allUsersErr, appCodes.USER_NOT_FOUND,
+                const errorResponse = utils.prepareErrorResponse (allUsersErr, appCodes.USER_NOT_FOUND,
                     "Problem getting list of users.");
                 
                 response.status(httpStatusCodes.STATUS_SERVER_ERROR);
-                response.send({code: appCodes.USER_NOT_FOUND, message: errorMessage, data: null});
+                response.send(errorResponse);
             });
         }, (reqError) => {
             const errorResponse = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
                 "Invalid header;  User, " + request.username + " could not be enrolled.");
+            
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
             response.send(errorResponse);
         });

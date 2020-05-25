@@ -556,7 +556,6 @@ class DrugSupplyChainContract extends Contract {
             eventType: 'queryDrugs',
             desc: `queryDrugs was executed at ${this.getCurrentDateTime()} by ${userId}`
         };
-        await ctx.stub.setEvent(smartContractEvents.EVENT_TYPE, Buffer.from(JSON.stringify(queryEvent)));
         
         await this.setEvent(ctx, queryEvent);
 

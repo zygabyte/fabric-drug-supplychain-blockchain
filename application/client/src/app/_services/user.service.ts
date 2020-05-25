@@ -18,91 +18,35 @@ export class UserService {
 
   constructor(private httpClient: HttpClient) {}
 
-  private createUserAuthorizationHeader(headers: HttpHeaders): HttpHeaders {
-    let currentUser: User;
-
-    // todo -> find a way to deal with this subscription
-    this.userSubject.subscribe((user: User) => {
-      currentUser = user;
-    });
-
-    if (currentUser) { return headers.append('Authorization', 'Basic ' + btoa(currentUser.userid + ':' + currentUser.password)); }
-
-    console.log('could not retrieve currently signed in user');
-    return headers;
-  }
-
   // __________________________________________blockchain util__________________________________________
-
-  getAllUsers(): Observable<ApiUser[]> {
+  // This API is used to get all the users in the system
+  getAllUsers(): Observable<ApiModel<ApiUser[]>> {
     let headers = new HttpHeaders();
-    //
+
     //  NOTE: an admin identity is needed to invoke this API since it calls the CA methods.
     headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
-    // replace with this line to pass in the current user vs admin
-    // headers = this.createUserAuthorizationHeader(headers);
-    return this.httpClient.get<ApiUser[]>(AppConstants.baseUserUrl, {headers})
+    return this.httpClient.get<ApiModel<ApiUser[]>>(AppConstants.baseUserUrl, {headers})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
-
-  // use after updating ledger
-  // getAllUsers(): Observable<ApiModel<ApiUser[]>> {
-  //   let headers = new HttpHeaders();
-  //   //
-  //   //  NOTE: an admin identity is needed to invoke this API since it calls the CA methods.
-  //   headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
-  //   // replace with this line to pass in the current user vs admin
-  //   // headers = this.createUserAuthorizationHeader(headers);
-  //   return this.httpClient.get<ApiModel<ApiUser[]>>(AppConstants.baseUserUrl, {headers})
-  //     .pipe(catchError(ErrorHandlers.handleApiError));
-  // }
 
   // This API is used during login to get the details of specific user trying to log in
-  // The 'usertype' is retrieved to set the currentUser for this application
-  // getUser(userId: string): Observable<ApiModel<ApiUser>> {
-  getUser(userId: string): Observable<ApiUser> {
+  getUser(userId: string): Observable<ApiModel<ApiUser>> {
     let headers = new HttpHeaders();
-    //
+
     //  NOTE: an admin identity is needed to invoke this API since it calls the CA methods.
-    headers = headers.append('Authorization', 'Basic ' + btoa('admin:adminpw'));
-    // replace with this line to pass in the user trying to log in vs admin
-    // headers = headers.append('Authorization', 'Basic ' + btoa(this.id+':'+this.pwd));
-    // return this.httpClient.get<ApiModel<ApiUser>>(`${AppConstants.baseUserUrl}/${userId}`, {headers})
-    //   .pipe(catchError(ErrorHandlers.handleApiError));
-    return this.httpClient.get<ApiUser>(`${AppConstants.baseUserUrl}/${userId}`, {headers})
+    headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
+    return this.httpClient.get<ApiModel<ApiUser>>(`${AppConstants.baseUserUrl}/${userId}`, {headers})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
-
-  // use after updating ledger
-  // getUser(userId: string): Observable<ApiModel<ApiUser>> {
-  //   let headers = new HttpHeaders();
-  //   //
-  //   //  NOTE: an admin identity is needed to invoke this API since it calls the CA methods.
-  //   headers = headers.append('Authorization', 'Basic ' + btoa('admin:adminpw'));
-  //   // replace with this line to pass in the user trying to log in vs admin
-  //   // headers = headers.append('Authorization', 'Basic ' + btoa(this.id+':'+this.pwd));
-  //   return this.httpClient.get<ApiModel<ApiUser>>(`${AppConstants.baseUserUrl}/${userId}`, {headers})
-  //     .pipe(catchError(ErrorHandlers.handleApiError));
-  // }
-
 
   // This API checks to see if user credentials exist in Wallet
-  isUserEnrolled(userId: string): Observable<boolean> {
+  isUserEnrolled(userId: string): Observable<ApiModel<boolean>> {
     let headers = new HttpHeaders();
-    headers = this.createUserAuthorizationHeader(headers);
-    // return this.httpClient.get(`${AppConstants.baseUserUrl}/is-enrolled/${userId}`, {headers});
-    return this.httpClient.get<boolean>(`${AppConstants.baseUrl}/api/is-user-enrolled/${userId}`, {headers})
+
+    headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
+    return this.httpClient.get<ApiModel<boolean>>(`${AppConstants.baseUserUrl}/is-enrolled/${userId}`, {headers})
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
-
-  // use after updating ledger
-  // isUserEnrolled(userId: string): Observable<ApiModel<boolean>> {
-  //   let headers = new HttpHeaders();
-  //   headers = this.createUserAuthorizationHeader(headers);
-  //   // return this.httpClient.get(`${AppConstants.baseUserUrl}/is-enrolled/${userId}`, {headers});
-  //   return this.httpClient.get<ApiModel<boolean>>(`${AppConstants.baseUrl}/api/is-user-enrolled/${userId}`, {headers})
-  //     .pipe(catchError(ErrorHandlers.handleApiError));
-  // }
 
 
   // __________________________________________local storage util__________________________________________

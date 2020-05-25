@@ -8,7 +8,6 @@ import {UserService} from '../_services';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
 import {ApiStatusCodes} from '../_constants/app-constants';
-import {MockDrugService} from '../_services/mock/mock.drug.service';
 
 @Component({
   selector: 'app-manufacturer',
@@ -25,7 +24,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
 
   error: string;
 
-  constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService, private mockDrugService: MockDrugService) { }
+  constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService) { }
 
   ngOnInit() {
     this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
@@ -58,10 +57,10 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
       quantity: this.newDrugForm.controls.quantity.value,
       prescription: this.newDrugForm.controls.prescription.value,
       expiryDate: this.newDrugForm.controls.expiryDate.value,
-      created: new Date().toLocaleDateString(undefined, {day: '2-digit', month: '2-digit', year: 'numeric'})
+      created: new Date().toLocaleString()
     };
 
-    this.mockDrugService.createDrug(drug)
+    this.drugService.createDrug(drug)
       .subscribe((data: ApiModel<Drug>) => {
 
         console.log('data is ', data);

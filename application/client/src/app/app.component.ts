@@ -8,9 +8,9 @@ import {UserService} from './_services';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'Generic Supplychain Blockchain Sample';
+  title = 'Drug Supplychain Blockchain';
 
-  constructor(private authService: AuthService, private userService: UserService){}
+  constructor(private authService: AuthService, private userService: UserService) {}
 
   ngOnInit(): void {
     this.userService.getCurrentUser();

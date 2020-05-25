@@ -77,35 +77,17 @@ export class UserManagementComponent implements OnInit {
   }
 
   getAllUsers() {
-    this.userService.getAllUsers().subscribe((users: ApiUser[]) => {
+    this.userService.getAllUsers().subscribe((users: ApiModel<ApiUser[]>) => {
 
-      this.getUsersEnrollment(users).subscribe((usersEnrollment: UserEnrollment[]) => {
-        if (usersEnrollment && usersEnrollment.length > 0) this.allUsers.data = JSON.parse(JSON.stringify(usersEnrollment));
-      });
+      if (users.code === ApiStatusCodes.SUCCESS) {
+        this.getUsersEnrollment(users.data).subscribe((usersEnrollment: UserEnrollment[]) => {
+          if (usersEnrollment && usersEnrollment.length > 0) { this.allUsers.data = JSON.parse(JSON.stringify(usersEnrollment)); }
+        });
+      }
     }, error => {
       console.log(JSON.stringify(error));
-      alert("Problem loading user list: " + error['error']['message']);
+      alert(`Problem loading user list: ${error.error.message}`);
     });
-
-    // use this when ledger has been fixed
-    // this.userService.getAllUsers().subscribe((users: ApiModel<ApiUser[]>) => {
-    //   if (users.code === StatusCodes.success) {
-    //     const usersEnrollment: UserEnrollment[] = [];
-    //
-    //     users.data.forEach(user => {
-    //       this.userService.isUserEnrolled(user.id)
-    //         .subscribe((userEnrolled: ApiModel<boolean>) => {
-    //           if (userEnrolled.code === StatusCodes.success)
-    //             usersEnrollment.push({ id: user.id, usertype: user.usertype, enrolled: userEnrolled.data });
-    //       });
-    //     });
-    //
-    //     this.allUsers = usersEnrollment;
-    //   }
-    // }, error => {
-    //   console.log(JSON.stringify(error));
-    //   alert("Problem loading user list: " + error['error']['message']);
-    // });
   }
 
   private getUsersEnrollment(apiUsers: ApiUser[]): Observable<UserEnrollment[]> {
@@ -115,8 +97,8 @@ export class UserManagementComponent implements OnInit {
 
     apiUsers.forEach(user => {
       this.userService.isUserEnrolled(user.id)
-        .subscribe((userEnrolled: boolean) => {
-          usersEnrollment.push({ id: user.id, usertype: user.usertype, enrolled: userEnrolled });
+        .subscribe((userEnrolled: ApiModel<boolean>) => {
+          if (userEnrolled.code === ApiStatusCodes.SUCCESS) { usersEnrollment.push({ id: user.id, usertype: user.usertype, enrolled: userEnrolled.data }); }
 
           if (usersEnrollment.length === apiUsers.length) { // at this point we've reached the capacity, so we can yield the observable result
             enrollmentSubject.next(usersEnrollment);

@@ -1,6 +1,6 @@
 <section id="customer">
   <h4>Drug Transaction History</h4>
-  <mat-form-field *ngIf="!orderId" class="mat-form-field ng-tns-c26-530 mat-primary mat-form-field-type-mat-input mat-form-field-appearance-legacy mat-form-field-can-float mat-form-field-has-label mat-form-field-hide-placeholder">
+  <mat-form-field class="mat-form-field ng-tns-c26-530 mat-primary mat-form-field-type-mat-input mat-form-field-appearance-legacy mat-form-field-can-float mat-form-field-has-label mat-form-field-hide-placeholder">
     <input matInput #drug placeholder="Enter Drug ID" (keydown.enter)="getDrugTransactionHistory(drug.value)">
     <mat-icon matSuffix (click)=getDrugTransactionHistory(drug.value)>search</mat-icon>
   </mat-form-field>

@@ -1,32 +1,28 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {MatTableDataSource} from '@angular/material/table';
+
 import {DrugService} from '../../_services/drug.service';
 import {ApiModel} from '../../_models/api.model';
 import {DrugTransaction} from '../../_models/drug';
 import {ApiStatusCodes} from '../../_constants/app-constants';
-import {MockDrugService} from '../../_services/mock/mock.drug.service';
 
 @Component({
   selector: 'app-drug-transactions',
   templateUrl: './drug-transactions.component.html',
   styleUrls: ['./drug-transactions.component.scss']
 })
-export class DrugTransactionsComponent implements OnInit {
+export class DrugTransactionsComponent {
 
-  drugTransactionHistory: DrugTransaction[];
+  drugTransactionHistory: MatTableDataSource<DrugTransaction[]> = new MatTableDataSource<DrugTransaction[]>();
   displayedColumns: string[] = ['drugName', 'modifiedBy', 'currentState', 'timestamp'];
-  @Input() orderId: string;
-  statuses: any;
 
-  constructor(private drugService: DrugService, private mockDrugService: MockDrugService) { }
-
-  ngOnInit() {
-  }
+  constructor(private drugService: DrugService) { }
 
   getDrugTransactionHistory(drugId: string) {
-    this.mockDrugService.getDrugTransactionHistory(drugId).subscribe((data: ApiModel<DrugTransaction[]>) => {
+    this.drugService.queryDrugTransactionHistory(drugId).subscribe((data: ApiModel<DrugTransaction[]>) => {
 
       if (data.code === ApiStatusCodes.SUCCESS) {
-        this.drugTransactionHistory = data.data;
+        this.drugTransactionHistory.data = JSON.parse(JSON.stringify(data.data));
       }
     });
   }

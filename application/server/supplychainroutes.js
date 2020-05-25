@@ -353,11 +353,13 @@ supplyChainRouter.route('users/register').post(function (request, response) {
 //  Output:  Certificate on successful enrollment
 //  Usage:  "smith", "smithpw", "manufacturer"
 supplyChainRouter.route('users/enroll').post(function (request, response) {
-    let userType = request.body.usertype;
+    const userId = request.body.userid;
+    const userPwd = request.body.password;
+    const userType = request.body.usertype;
     
     //  retrieve username, password of the called from authorization header
     getUsernamePassword(request).then(newRequest => {
-        utils.enrollUser(newRequest.username, newRequest.password, userType).then(enrolledUser => {
+        utils.enrollUser(userId, userPwd, userType).then(enrolledUser => {
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'successfully enrolled user', data: enrolledUser});
         }, enrolledError => {

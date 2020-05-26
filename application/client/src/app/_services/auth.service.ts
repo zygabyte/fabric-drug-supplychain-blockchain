@@ -24,8 +24,6 @@ export class AuthService {
       .pipe(catchError(ErrorHandlers.handleApiError));
   }
 
-
-  // todo -> make sure to update this on the backend to use the passed user for the enrollment
   enrollUser(user: User): Observable<ApiModel<string>> {
     let headers = new HttpHeaders();
     headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));

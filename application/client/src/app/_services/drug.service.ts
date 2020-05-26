@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 
 import {Drug, DrugStateUtil, DrugTransaction} from '../_models/drug';
-import {AppConstants} from '../_constants/app-constants';
+import {AppConstants, DefaultUser} from '../_constants/app-constants';
 import {UserService} from './user.service';
 import {User} from '../_models/user';
 import {ErrorHandlers} from '../_utilities/handlers/error.handlers';
@@ -59,7 +59,8 @@ export class DrugService {
 
   queryDrugTransactionHistory(drugId: string): Observable<ApiModel<DrugTransaction[]>> {
     let headers = new HttpHeaders();
-    headers = this.createUserAuthorizationHeader(headers);
+    //  NOTE: using an admin identity since no identity likely will be in existence at this point
+    headers = headers.append('Authorization', 'Basic ' + btoa(`${DefaultUser.userId}:${DefaultUser.userSecret}`));
 
     return this.httpClient
       .get<ApiModel<DrugTransaction[]>>(`${AppConstants.baseDrugUrl}/drug-history/${drugId}`, {headers})

@@ -23,6 +23,7 @@ export class DrugTransactionsComponent {
 
       if (data.code === ApiStatusCodes.SUCCESS) {
         this.drugTransactionHistory.data = JSON.parse(JSON.stringify(data.data));
+        console.log(data);
       }
     });
   }

@@ -37,9 +37,9 @@
   </table>
 
   <br/>
-  <label style="text-align:left"  *ngIf="drugTransactionHistory && drugTransactionHistory.length > 0">
+  <label style="text-align:left"  *ngIf="drugTransactionHistory && drugTransactionHistory.data.length > 0">
     Drug Prescription:
-    <textarea type="text" class="messageareastyle" rows="3" readonly>{{drugTransactionHistory[0].prescription}}</textarea>
+    <textarea type="text" class="messageareastyle" rows="3" readonly>{{drugTransactionHistory.data[0].prescription}}</textarea>
   </label>
 </section>
 

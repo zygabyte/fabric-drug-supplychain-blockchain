@@ -2,7 +2,7 @@
 <header>
     <mat-toolbar color="primary">
       <mat-toolbar-row>
-        <span>{{title}}</span>
+        <span><a [routerLink] (click)="home()">{{title}}</a></span>
         <span class="spacer"></span>
         <span><a [routerLink]="['login']"  (click)="logout()">Logout</a></span>
         <!--<mat-icon aria-hidden="false" aria-label="account circle icon" (click)="logout()">Logout</mat-icon>-->

@@ -57,12 +57,16 @@ export class UserService {
     localStorage.setItem(this.userCacheKey, JSON.stringify(user));
   }
 
-  getCurrentUser() {
+  setCurrentUserObservable() {
     const currentUser: User = JSON.parse(localStorage.getItem(this.userCacheKey));
 
     if (!currentUser) { return; }
 
     this.userSubject.next(currentUser); // subscribers now have access to the newly retrieved users from the local storage
+  }
+
+  getCurrentUser(): User {
+    return JSON.parse(localStorage.getItem(this.userCacheKey));
   }
 
   removeCurrentUser()  {

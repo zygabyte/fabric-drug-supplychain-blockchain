@@ -45,3 +45,10 @@ export const SupplyChainActors = {
   consumer: 'consumer',
   admin: 'admin',
 };
+
+export const SupplyChainActorsDropDown = {
+  manufacturer: 'manufacturer',
+  distributor: 'distributor',
+  wholesaler: 'wholesaler',
+  retailer: 'retailer'
+};

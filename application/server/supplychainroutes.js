@@ -302,7 +302,7 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, res
 //  Usage 1:    "smith", "smithpw", "manufacturer"
 //  Usage 2:    "smith", "",        "manufacturer"
 
-supplyChainRouter.route('users/register').post(function (request, response) {
+supplyChainRouter.route('/users/register').post(function (request, response) {
     
     const userId = request.body.userid;
     const userPwd = request.body.password;
@@ -352,7 +352,7 @@ supplyChainRouter.route('users/register').post(function (request, response) {
 //  Input: { userid, password } in header and request.body.usertype
 //  Output:  Certificate on successful enrollment
 //  Usage:  "smith", "smithpw", "manufacturer"
-supplyChainRouter.route('users/enroll').post(function (request, response) {
+supplyChainRouter.route('/users/enroll').post(function (request, response) {
     const userId = request.body.userid;
     const userPwd = request.body.password;
     const userType = request.body.usertype;
@@ -379,7 +379,7 @@ supplyChainRouter.route('users/enroll').post(function (request, response) {
     });
 });
 
-supplyChainRouter.route('users/is-enrolled/:id').get(function (request, response) {
+supplyChainRouter.route('/users/is-enrolled/:id').get(function (request, response) {
     //  only admin can call this api;  But this is not verified here
     //  get admin username and pwd from request header
     //

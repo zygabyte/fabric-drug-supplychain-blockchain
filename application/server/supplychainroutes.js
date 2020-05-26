@@ -77,8 +77,10 @@ supplyChainRouter.route('/drugs').get(function (request, response) {
     submitTx(request, 'queryDrugs', '')
         .then((queryDrugsResponse) => {
             //  response is already a string;  not a buffer
+            const drugs = JSON.parse(JSON.parse(queryDrugsResponse));
+            console.log(drugs);
             response.status(httpStatusCodes.STATUS_SUCCESS);
-            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drugs', data: JSON.parse(queryDrugsResponse)});
+            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drugs', data: drugs});
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 "There was a problem getting the list of drugs.");
@@ -94,7 +96,7 @@ supplyChainRouter.route('/drugs/:id').get(function (request, response) {
     submitTx(request, 'queryDrug', request.params.id)
         .then((queryDrugResponse) => {
             // process response
-            let drug = Drug.fromBuffer(queryDrugResponse);
+            const drug = Drug.fromBuffer(queryDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug', data: drug});
@@ -114,10 +116,10 @@ supplyChainRouter.route('/drugs/drug-history/:id').get(function (request, respon
     submitTx(request, 'queryDrugTransactionHistory', request.params.id)
         .then((queryDrugHisResponse) => {
             //  response is already a string;  not a buffer
-            console.log('drug transaction history');
-            console.log(JSON.parse(queryDrugHisResponse));
+            const drugs = JSON.parse(JSON.parse(queryDrugHisResponse));
+            console.log(drugs);
             response.status(httpStatusCodes.STATUS_SUCCESS);
-            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug history', data: JSON.parse(queryDrugHisResponse)});
+            response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug history', data: drugs});
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 'Drug id, ' + request.params.id +
@@ -137,7 +139,7 @@ supplyChainRouter.route('/drugs').post(function (request, response) {
         .then((result) => {
             // process response
             console.log('\nProcess createDrug transaction.');
-            let drug = Drug.fromBuffer(result);
+            const drug = Drug.fromBuffer(result);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully created drug', data: drug});
@@ -156,7 +158,7 @@ supplyChainRouter.route('/drugs/manufacturer/ship/:id').patch(function (request,
     submitTx (request, 'manufacturerShipDrug', request.params.id)
         .then((manShipDrugResponse) => {
             console.log('Process manufacturerShipDrug transaction.');
-            let drug = Drug.fromBuffer(manShipDrugResponse);
+            const drug = Drug.fromBuffer(manShipDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'manufacturer successfully shipped drug', data: drug});
@@ -176,7 +178,7 @@ supplyChainRouter.route('/drugs/distributor/receive/:id').patch(function (reques
     submitTx (request, 'distributorReceiveDrug', request.params.id)
         .then((disReceiveDrugResponse) => {
             console.log('Process distributorReceiveDrug transaction.');
-            let drug = Drug.fromBuffer(disReceiveDrugResponse);
+            const drug = Drug.fromBuffer(disReceiveDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'distributor successfully received drug', data: drug});
@@ -195,7 +197,7 @@ supplyChainRouter.route('/drugs/distributor/ship/:id').patch(function (request, 
     submitTx (request, 'distributorShipDrug', request.params.id)
         .then((disShipDrugResponse) => {
             console.log('Process distributorShipDrug transaction.');
-            let drug = Drug.fromBuffer(disShipDrugResponse);
+            const drug = Drug.fromBuffer(disShipDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'distributor successfully shipped drug', data: drug});
@@ -215,7 +217,7 @@ supplyChainRouter.route('/drugs/wholesaler/receive/:id').patch(function (request
     submitTx (request, 'wholesalerReceiveDrug', request.params.id)
         .then((wholeReceiveDrugResponse) => {
             console.log('Process wholesalerReceiveDrug transaction.');
-            let drug = Drug.fromBuffer(wholeReceiveDrugResponse);
+            const drug = Drug.fromBuffer(wholeReceiveDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'wholesaler successfully received drug', data: drug});
@@ -234,7 +236,7 @@ supplyChainRouter.route('/drugs/wholesaler/ship/:id').patch(function (request, r
     submitTx (request, 'wholesalerShipDrug', request.params.id)
         .then((wholeShipDrugResponse) => {
             console.log('Process wholesalerShipDrug transaction.');
-            let drug = Drug.fromBuffer(wholeShipDrugResponse);
+            const drug = Drug.fromBuffer(wholeShipDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'wholesaler successfully shipped drug', data: drug});
@@ -255,7 +257,7 @@ supplyChainRouter.route('/drugs/retailer/receive/:id').patch(function (request, 
     submitTx (request, 'retailerReceiveDrug', request.params.id)
         .then((retReceiveDrugResponse) => {
             console.log('Process retailerReceiveDrug transaction.');
-            let drug = Drug.fromBuffer(retReceiveDrugResponse);
+            const drug = Drug.fromBuffer(retReceiveDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'retailer successfully received drug', data: drug});
@@ -274,7 +276,7 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, res
     submitTx (request, 'retailerSellDrug', request.params.id)
         .then((retSellDrugResponse) => {
             console.log('Process retailerSellDrug transaction.');
-            let drug = Drug.fromBuffer(retSellDrugResponse);
+            const drug = Drug.fromBuffer(retSellDrugResponse);
             console.log(drug);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'retailer successfully sold drug', data: drug});

@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService, UserService } from './../../_services/index';
 import { MatDialog } from '@angular/material';
+import {Subscription} from "rxjs";
+import {User} from "../../_models/user";
 
 @Component({
   selector: 'order-form',
@@ -10,25 +12,28 @@ import { MatDialog } from '@angular/material';
   styleUrls: ['./order-form.component.scss']
 })
 
-export class OrderFormComponent implements OnInit {
+export class OrderFormComponent implements OnInit, OnDestroy {
   messageForm: FormGroup;
   submitted = false;
   success = false;
   order: Object;
   messages: String[];
-  currentUser: any;
+  currentUser: User;
+  userSubscription: Subscription;
   producerId: String;
   producers: any[];
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: FormBuilder, private userService: UserService,
     private router: Router,
     private api: ApiService,
-    private user: UserService,
     public dialog: MatDialog) { }
 
   ngOnInit() {
-    this.currentUser = this.user.getCurrentUser();
+
+    this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
+      this.currentUser = user;
+    });
 
     this.getProducers();
 
@@ -90,11 +95,15 @@ export class OrderFormComponent implements OnInit {
       alert("Problem getting list of users: " + error['error']['message']);
     });
   }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
+  }
 }
 
 // Generate a random number to create orderId
 function uuid() {
   const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
-  return `${s4()}`
+  return `${s4()}`;
 }
 

@@ -1,8 +1,10 @@
-import { Component, Inject, Input, OnInit, ChangeDetectorRef } from '@angular/core';
+import {Component, Inject, Input, OnInit, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiService, UserService } from '../../_services/index';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, TooltipPosition } from '@angular/material';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import {User} from "../../_models/user";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'orders-table',
@@ -18,18 +20,22 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
   ],
 })
 
-export class OrdersTableComponent implements OnInit {
+export class OrdersTableComponent implements OnInit, OnDestroy {
   orders: MatTableDataSource<Order[]>;
-  currentUser: any;
+  currentUser: User;
+  userSubscription: Subscription;
   columnsToDisplay = ['orderId', 'productId', 'price', 'quantity', 'producerId', 'retailerId', 'status', 'trackingInfo'];
   expandedElement: Order | null;
 
   @Input('regulator') regulator: boolean;
 
-  constructor(private api: ApiService, private user: UserService, private cd: ChangeDetectorRef, public dialog: MatDialog) { }
+  constructor(private api: ApiService, private userService: UserService, private cd: ChangeDetectorRef, public dialog: MatDialog) { }
 
   ngOnInit() {
-    this.currentUser = this.user.getCurrentUser();
+    this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
+      this.currentUser = user;
+    });
+
     //console.log("currentUser: "+this.currentUser);
     this.regulator = this.regulator !== undefined;
     //console.log(`Regulator Boolean attribute is ${this.regulator ? '' : 'non-'}present!`);
@@ -159,6 +165,10 @@ export class OrdersTableComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
   }
 }
 

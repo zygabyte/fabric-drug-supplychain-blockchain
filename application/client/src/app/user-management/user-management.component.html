@@ -1,6 +1,6 @@
 <section id="user-management">
   <h3>User Management Page</h3>
-  <mat-tab-group (selectedIndexChange)="loadUserList($event)">
+  <mat-tab-group (selectedIndexChange)="getAllUsers()">
     <mat-tab label="Manage Users">
       <table mat-table [dataSource]="allUsers" multiTemplateDataRows class="mat-elevation-z8">
         <ng-container matColumnDef="id">
@@ -19,11 +19,12 @@
         <tr mat-row *matRowDef="let element; columns: columnsToDisplay;" class="example-element-row"></tr>
       </table>
     </mat-tab>
+
     <mat-tab label="Register New User">
       <div style="display: table-cell; width: 100vw">
         <div class="formstyle">
           <h3>New User Form</h3>
-          <form [formGroup]="newUserForm" (ngSubmit)="onSubmit()">
+          <form [formGroup]="newUserForm" (ngSubmit)="onRegisterUser()">
 
             <label style="text-align:left">
               ID:
@@ -53,7 +54,7 @@
             <label style="text-align:left">
               Type:
               <select class="form-control" formControlName="usertype" required>
-                <option *ngFor="let r of types" [ngValue]="r">{{ r }}</option>
+                <option *ngFor="let r of supplyChainActors" [ngValue]="r">{{ r }}</option>
               </select>
               <div *ngIf="submitted && newUserForm.controls.usertype.errors" class="error">
                 <div *ngIf="newUserForm.controls.usertype.errors.required">Type is required</div>
@@ -65,7 +66,7 @@
           </form>
           <div *ngIf="submitted" class="results">
             <p *ngIf="success; else elseBlock">User Registered Successfully!</p>
-            <ng-template #elseBlock>ERROR registering user please make sure the passwords match.</ng-template>
+            <ng-template #elseBlock>{{error}}</ng-template>
           </div>
         </div>
       </div>

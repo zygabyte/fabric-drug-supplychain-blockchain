@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { UserService } from '../_services/index';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Subscription} from 'rxjs';
+
+import { UserService } from '../_services';
+import {User} from '../_models/user';
 
 @Component({
   selector: 'app-customer',
@@ -8,13 +11,20 @@ import { UserService } from '../_services/index';
   providers: [ ]
 })
 
-export class CustomerComponent implements OnInit {
+export class CustomerComponent implements OnInit, OnDestroy {
 
-  currentUser: any;
+  currentUser: User;
+  userSubscription: Subscription;
 
-  constructor(private user: UserService) { }
+  constructor(private userService: UserService) { }
 
   ngOnInit() {
-    this.currentUser = this.user.getCurrentUser();
+    this.userSubscription = this.userService.userSubject.subscribe((user: User) => {
+      this.currentUser = user;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
   }
 }

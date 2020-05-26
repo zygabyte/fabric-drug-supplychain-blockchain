@@ -1,0 +1,71 @@
+<section id="manufacturer">
+  <h3>Manufacturer Portal - {{currentUser.userid}}</h3>
+  <mat-tab-group>
+<!--    <mat-tab label="Manage Orders">-->
+<!--      <orders-table></orders-table>-->
+<!--    </mat-tab>-->
+
+    <mat-tab label="Manage Drugs">
+      <app-drugs-table></app-drugs-table>
+    </mat-tab>
+
+    <mat-tab label="Manufacture Drug">
+      <div style="display: table-cell; width: 100vw">
+        <div class="formstyle">
+          <h3>New Drug</h3>
+          <form [formGroup]="newDrugForm" (ngSubmit)="onManufactureDrug()">
+
+            <label style="text-align:left">
+              Drug Name:
+              <input type="text" formControlName="name">
+              <div *ngIf="submitted && newDrugForm.controls.name.errors" class="error">
+                <div *ngIf="newDrugForm.controls.name.errors.required">Drug name is required</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Price:
+              <input type="number" min="0" formControlName="price">
+              <div *ngIf="submitted && newDrugForm.controls.price.errors" class="error">
+                <div *ngIf="newDrugForm.controls.price.errors.required">Drug price is required</div>
+                <div *ngIf="newDrugForm.controls.price.errors.min">Minimum of drug price is 0</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Quantity:
+              <input type="number" formControlName="quantity">
+              <div *ngIf="submitted && newDrugForm.controls.quantity.errors" class="error">
+                <div *ngIf="newDrugForm.controls.quantity.errors.required">Drug quantity is required</div>
+                <div *ngIf="newDrugForm.controls.quantity.errors.min">Minimum of drug quantity is 0</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Expiry Date:
+              <input type="text" formControlName="expiryDate">
+              <div *ngIf="submitted && newDrugForm.controls.expiryDate.errors" class="error">
+                <div *ngIf="newDrugForm.controls.expiryDate.errors.required">Drug expiry date is required</div>
+              </div>
+            </label>
+
+            <label style="text-align:left">
+              Drug Prescription:
+              <textarea type="text" formControlName="prescription" class="messageareastyle" rows="3"></textarea>
+              <div *ngIf="submitted && newDrugForm.controls.prescription.errors" class="error">
+                <div *ngIf="newDrugForm.controls.prescription.errors.required">Drug prescription is required</div>
+              </div>
+            </label>
+
+            <input type="submit" style="width:100%" value="Manufacture Drug" class="form-button">
+
+          </form>
+          <div *ngIf="submitted" class="results">
+            <p *ngIf="success; else elseBlock">Drug Manufactured Successfully!</p>
+            <ng-template #elseBlock>{{error}}</ng-template>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</section>

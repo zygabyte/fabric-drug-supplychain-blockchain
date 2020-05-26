@@ -8,6 +8,7 @@ gateway/ibp/wallet/*
 gateway/local/wallet/*
 application/server/node_modules/*
 application/client/node_modules/*
+contract/node_modules/*
 
 # IDE - VSCode
 .vscode/*

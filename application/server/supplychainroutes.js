@@ -116,7 +116,7 @@ supplyChainRouter.route('/drugs/drug-history/:id').get(function (request, respon
     submitTx(request, 'queryDrugTransactionHistory', request.params.id)
         .then((queryDrugHisResponse) => {
             //  response is already a string;  not a buffer
-            const drugs = JSON.parse(JSON.parse(queryDrugHisResponse));
+            const drugs = (JSON.parse(queryDrugHisResponse));
             console.log(drugs);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug history', data: drugs});

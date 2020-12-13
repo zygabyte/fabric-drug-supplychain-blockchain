@@ -167,4 +167,16 @@ export class DrugService {
         return data;
       }), catchError(ErrorHandlers.handleApiError));
   }
+
+  authorizeDrug(encryptedDrugId: string): Observable<ApiModel<DrugTransaction>> {
+    let headers = new HttpHeaders();
+    headers = this.createUserAuthorizationHeader(headers);
+
+    return this.httpClient
+      .patch<ApiModel<DrugTransaction>>(`${AppConstants.baseDrugUrl}/authorize/${encryptedDrugId}`, {}, {headers})
+      .pipe(map((data: ApiModel<DrugTransaction>) => {
+        data.data.currentStateName = DrugStateUtil.getDrugStateName(data.data.currentState);
+        return data;
+      }), catchError(ErrorHandlers.handleApiError));
+  }
 }

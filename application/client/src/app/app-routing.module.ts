@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { EnrollComponent } from './enroll/enroll.component';
 import { CustomerComponent } from './customer/customer.component';
@@ -15,6 +14,7 @@ import {DistributorComponent} from './distributor/distributor.component';
 import {WholesalerComponent} from './wholesaler/wholesaler.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 import {DrugTransactionsComponent} from './_partials/drug-transactions/drug-transactions.component';
+import {DrugAuthComponent} from './drug-auth/drug-auth.component';
 
 import { AuthGuard } from './_guards/auth.guard';
 
@@ -33,6 +33,7 @@ const routes: Routes = [
   { path: 'retailer', component: RetailerComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserManagementComponent, canActivate: [AuthGuard] },
   { path: 'drug-transaction-history', component: DrugTransactionsComponent },
+  { path: 'drug-auth', component: DrugAuthComponent },
 
   // otherwise redirect to login
   { path: '**', redirectTo: '/login' }

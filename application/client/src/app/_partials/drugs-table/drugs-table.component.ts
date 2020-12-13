@@ -59,7 +59,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in manufacturer shipping drug', error);
       });
   }
 
@@ -71,7 +71,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in distributor receiving drug', error);
       });
   }
 
@@ -83,7 +83,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in distributor shipping drug', error);
       });
   }
 
@@ -95,7 +95,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in wholesaler receiving drug', error);
       });
   }
 
@@ -107,7 +107,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in wholesaler shipping drug', error);
       });
   }
 
@@ -119,7 +119,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in retailer receiving drug', error);
       });
   }
 
@@ -131,7 +131,7 @@ export class DrugsTableComponent implements OnInit, OnDestroy {
         if (data.code === ApiStatusCodes.SUCCESS) this.queryDrugs();
 
       }, error => {
-        console.log('error in creating drug', error);
+        console.log('error in retailer shipping drug', error);
       });
   }
 

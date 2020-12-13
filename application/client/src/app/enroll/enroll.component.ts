@@ -2,14 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../_services';
-import {SupplyChainActors} from '../_constants/app-constants';
+import {SupplyChainActorsDropDown} from '../_constants/app-constants';
 import {User} from '../_models/user';
 
 @Component({
   selector: 'app-enroll',
   templateUrl: './enroll.component.html',
-  styleUrls: ['./enroll.component.scss'],
-  providers: []
+  styleUrls: ['./enroll.component.scss']
 })
 
 export class EnrollComponent implements OnInit {
@@ -26,20 +25,18 @@ export class EnrollComponent implements OnInit {
       userid: '', password: '', usertype: ''
     };
 
-    this.types = ["retailer", "producer", "shipper", "customer", "regulator"];
-
-    this.supplyChainActors = Object.keys(SupplyChainActors);
+    this.supplyChainActors = Object.keys(SupplyChainActorsDropDown);
   }
 
   enrollUser() {
     this.loading = true;
     this.authService.enrollUser(this.enrollUserModel).subscribe(data => {
-      alert("Enrollment was successful. User can log in to be taken to their portal.");
+      alert('Enrollment was successful. User can log in to be taken to their portal.');
       this.router.navigate(['/login']);
     }, error => {
       this.loading = false;
       console.log(JSON.stringify(error));
-      alert("Enrollment failed: " + error['error']['message']);
+      alert('Enrollment failed: ' + error.error.message);
     });
   }
 }

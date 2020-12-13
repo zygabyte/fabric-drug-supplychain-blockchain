@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {MatTableDataSource} from '@angular/material/table';
 import {BehaviorSubject, Observable} from 'rxjs';
 
-import {ApiService, AuthService, UserService} from '../_services';
-import {ApiStatusCodes, SupplyChainActors} from '../_constants/app-constants';
+import {AuthService, UserService} from '../_services';
+import {ApiStatusCodes, SupplyChainActorsDropDown} from '../_constants/app-constants';
 import {ApiUser, User, UserEnrollment} from '../_models/user';
 import {ApiModel} from '../_models/api.model';
 
@@ -29,7 +29,7 @@ export class UserManagementComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private userService: UserService, private auth: AuthService) {}
 
   ngOnInit() {
-    this.supplyChainActors = Object.keys(SupplyChainActors);
+    this.supplyChainActors = Object.keys(SupplyChainActorsDropDown);
 
     this.newUserForm = this.formBuilder.group({
       id: ['', Validators.required],

@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule,
   MatTableModule, MatTabsModule, MatToolbarModule } from '@angular/material';
+import {ZXingScannerModule} from '@zxing/ngx-scanner';
+import {MatButtonModule} from '@angular/material/button';
 
 /* Components */
 import { AppComponent } from './app.component';
@@ -19,6 +21,12 @@ import { RegulatorComponent } from './regulator/regulator.component';
 import { RetailerComponent } from './retailer/retailer.component';
 import { ShipperComponent } from './shipper/shipper.component';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { WholesalerComponent } from './wholesaler/wholesaler.component';
+import { DistributorComponent } from './distributor/distributor.component';
+import { DrugsTableComponent } from './_partials/drugs-table/drugs-table.component';
+import { ManufacturerComponent } from './manufacturer/manufacturer.component';
+import { DrugTransactionsComponent } from './_partials/drug-transactions/drug-transactions.component';
+import {DrugAuthComponent} from './drug-auth/drug-auth.component';
 
 /* Partial Components */
 import { OrderFormComponent } from './_partials/order-form/order-form.component';
@@ -26,13 +34,6 @@ import { OrderHistoryComponent } from './_partials/order-history/order-history.c
 import { OrdersTableComponent } from './_partials/orders-table/orders-table.component';
 import { ToShipperDialog } from './_partials/orders-table/orders-table.component';
 import { DeleteOrderDialog } from './_partials/orders-table/orders-table.component';
-
-/* Services */
-import { WholesalerComponent } from './wholesaler/wholesaler.component';
-import { DistributorComponent } from './distributor/distributor.component';
-import { DrugsTableComponent } from './_partials/drugs-table/drugs-table.component';
-import { ManufacturerComponent } from './manufacturer/manufacturer.component';
-import { DrugTransactionsComponent } from './_partials/drug-transactions/drug-transactions.component';
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import { DrugTransactionsComponent } from './_partials/drug-transactions/drug-tr
     DistributorComponent,
     DrugsTableComponent,
     ManufacturerComponent,
-    DrugTransactionsComponent
+    DrugTransactionsComponent,
+    DrugAuthComponent
   ],
   imports: [
     BrowserModule,
@@ -71,7 +73,9 @@ import { DrugTransactionsComponent } from './_partials/drug-transactions/drug-tr
     MatInputModule,
     MatTabsModule,
     MatTableModule,
-    MatToolbarModule
+    MatToolbarModule,
+    ZXingScannerModule,
+    MatButtonModule
   ],
   bootstrap: [AppComponent],
   entryComponents: [

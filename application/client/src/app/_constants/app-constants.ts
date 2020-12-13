@@ -37,13 +37,13 @@ export const DrugState = {
 };
 
 export const SupplyChainActors = {
-  regulator: 'regulator',
+  // regulator: 'regulator',
   manufacturer: 'manufacturer',
   distributor: 'distributor',
   wholesaler: 'wholesaler',
   retailer: 'retailer',
-  consumer: 'consumer',
-  admin: 'admin',
+  // consumer: 'consumer',
+  // admin: 'admin',
 };
 
 export const SupplyChainActorsDropDown = {

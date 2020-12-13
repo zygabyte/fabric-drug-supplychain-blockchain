@@ -4,6 +4,8 @@
 * SPDX-License-Identifier: Apache-2.0
 */
 'use strict';
+import {SupplyChainActors} from "../client/src/app/_constants/app-constants";
+
 const express = require('express');
 const utils = require('./utils');
 const supplyChainRouter = express.Router();
@@ -13,6 +15,7 @@ const Drug = require('../../contract/lib/drug');
 
 const httpStatusCodes = require('./constants').HTTP_STATUS_CODES; // http status codes
 const appCodes = require('./constants').APP_CODES; //  application specific errors
+const defaultUser = require('./constants').DEFAULT_USER; //  default admin user
 
 async function getUsernamePassword(request) {
     // check for basic auth header
@@ -116,7 +119,7 @@ supplyChainRouter.route('/drugs/drug-history/:id').get(function (request, respon
     submitTx(request, 'queryDrugTransactionHistory', request.params.id)
         .then((queryDrugHisResponse) => {
             //  response is already a string;  not a buffer
-            const drugs = JSON.parse(JSON.parse(queryDrugHisResponse));
+            const drugs = (JSON.parse(queryDrugHisResponse));
             console.log(drugs);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drug history', data: drugs});
@@ -288,6 +291,61 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, res
             response.send(errorResponse);
         });
 });
+
+
+/// __________________________________Drug Authorization__________________________________
+/// PATCH - /drugs/authorize/:id
+supplyChainRouter.route('/drugs/authorize/:id').patch(function (request, response) {
+    
+    const decryptedData = utils.decryptData(request.params.id);
+    
+    console.log('decrypted data');
+    console.log(decryptedData);
+    
+    getUsernamePassword(request).then(() => {
+        let smartContractName = '';
+        
+        utils.getUser(request.username, defaultUser.userId).then((user) => {
+
+            switch (user.usertype) {
+                case SupplyChainActors.distributor:
+                    smartContractName = 'distributorReceiveDrug';
+                    break;
+
+                case SupplyChainActors.wholesaler:
+                    smartContractName = 'wholesalerReceiveDrug';
+                    break;
+
+                case SupplyChainActors.retailer:
+                    smartContractName = 'retailerReceiveDrug';
+                    break;
+            }
+
+            submitTx (request, smartContractName, decryptedData)
+                .then((receiveDrugResponse) => {
+                    console.log(`Process ${smartContractName} transaction.`);
+                    const drug = Drug.fromBuffer(receiveDrugResponse);
+                    console.log(drug);
+                    response.status(httpStatusCodes.STATUS_SUCCESS);
+                    response.send({code: appCodes.SUCCESS, message: `${user.usertype} ${user.userid} successfully received drug`, data: drug});
+                }, (error) => {
+                    const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
+                        `There was a problem in ${user.usertype} ${user.userid}  receiving the drug,` + request.params.id);
+
+                    response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+                    response.send(errorResponse);
+                });
+            
+        }, (userErr) => {
+            const errorResponse = utils.prepareErrorResponse(userErr, appCodes.USER_NOT_FOUND,
+                "Could not get user details for user, " + request.username);
+
+            response.status(httpStatusCodes.STATUS_SERVER_ERROR);
+            response.send(errorResponse);
+        });
+    });
+});
+
 
 
 

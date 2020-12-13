@@ -11,6 +11,14 @@ const path = require('path');
 const { FileSystemWallet, Gateway, User, X509WalletMixin } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 
+// rijndael for aes encryption
+const Rijndael = require('rijndael-js');
+const key = '9c6e7b092cd3015f';
+const iv = 'bb739a9759b400ed';
+
+const cipher = new Rijndael(key, 'cbc');
+
+
 //  global variables for HLFabric
 let gateway;
 let network;
@@ -415,5 +423,17 @@ utils.getAllUsers = async (adminIdentity) => {
     
     return allUsers;
 }  //  end of function getAllUsers
+
+utils.encryptData = (data) => {
+    const cipherTextBuffer = Buffer.from(cipher.encrypt(data, 128, iv));
+
+    return cipherTextBuffer.toString("base64");
+}
+
+utils.decryptData = (cipherText) => {
+    const plaintext = Buffer.from(cipher.decrypt(cipherText, 128, iv));
+    
+    return plaintext.toString();
+}
 
 module.exports = utils;

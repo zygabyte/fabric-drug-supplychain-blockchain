@@ -427,11 +427,13 @@ utils.getAllUsers = async (adminIdentity) => {
 utils.encryptData = (data) => {
     const cipherTextBuffer = Buffer.from(cipher.encrypt(data, 128, iv));
 
-    return cipherTextBuffer.toString("base64");
+    return cipherTextBuffer.toString('base64');
 }
 
 utils.decryptData = (cipherText) => {
-    const plaintext = Buffer.from(cipher.decrypt(cipherText, 128, iv));
+    const cipherTextBuffer = Buffer.from(cipherText, 'base64');
+    
+    const plaintext = Buffer.from(cipher.decrypt(cipherTextBuffer, 128, iv));
     
     return plaintext.toString();
 }

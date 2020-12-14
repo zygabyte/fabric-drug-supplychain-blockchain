@@ -4,7 +4,6 @@
 * SPDX-License-Identifier: Apache-2.0
 */
 'use strict';
-import {SupplyChainActors} from "../client/src/app/_constants/app-constants";
 
 const express = require('express');
 const utils = require('./utils');
@@ -16,6 +15,8 @@ const Drug = require('../../contract/lib/drug');
 const httpStatusCodes = require('./constants').HTTP_STATUS_CODES; // http status codes
 const appCodes = require('./constants').APP_CODES; //  application specific errors
 const defaultUser = require('./constants').DEFAULT_USER; //  default admin user
+
+const supplyChainActors = require('./constants').SUPPLY_CHAIN_ACTORS; // supply chain actors
 
 async function getUsernamePassword(request) {
     // check for basic auth header
@@ -308,15 +309,15 @@ supplyChainRouter.route('/drugs/authorize/:id').patch(function (request, respons
         utils.getUser(request.username, defaultUser.userId).then((user) => {
 
             switch (user.usertype) {
-                case SupplyChainActors.distributor:
+                case supplyChainActors.distributor:
                     smartContractName = 'distributorReceiveDrug';
                     break;
 
-                case SupplyChainActors.wholesaler:
+                case supplyChainActors.wholesaler:
                     smartContractName = 'wholesalerReceiveDrug';
                     break;
 
-                case SupplyChainActors.retailer:
+                case supplyChainActors.retailer:
                     smartContractName = 'retailerReceiveDrug';
                     break;
             }

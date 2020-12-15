@@ -296,9 +296,10 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, res
 
 /// __________________________________Drug Authorization__________________________________
 /// PATCH - /drugs/authorize/:id
-supplyChainRouter.route('/drugs/authorize/:id').patch(function (request, response) {
+supplyChainRouter.route('/drugs/authorize').patch(function (request, response) {
     
-    const decryptedData = utils.decryptData(request.params.id);
+    const encryptedId = request.body;
+    const decryptedData = utils.decryptData(encryptedId);
     
     console.log('decrypted data');
     console.log(decryptedData);

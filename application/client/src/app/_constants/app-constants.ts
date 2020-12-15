@@ -52,3 +52,9 @@ export const SupplyChainActorsDropDown = {
   wholesaler: 'wholesaler',
   retailer: 'retailer'
 };
+
+export const DrugSgtin = {
+  header: '48',
+  filter: '1',
+  partition: '5'
+};

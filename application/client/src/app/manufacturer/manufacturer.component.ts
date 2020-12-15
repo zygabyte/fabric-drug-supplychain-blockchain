@@ -7,7 +7,7 @@ import {Drug} from '../_models/drug';
 import {UserService} from '../_services';
 import {DrugService} from '../_services/drug.service';
 import {ApiModel} from '../_models/api.model';
-import {ApiStatusCodes} from '../_constants/app-constants';
+import {ApiStatusCodes, DrugSgtin} from '../_constants/app-constants';
 
 @Component({
   selector: 'app-manufacturer',
@@ -51,7 +51,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
     const formDrugName: string = this.newDrugForm.controls.name.value;
 
     const drug: Drug = {
-      drugId: `${formDrugName.toLowerCase()}${this.getRandomNum()}`,
+      drugId: this.getDrugSgtin(),
       drugName: formDrugName,
       price: this.newDrugForm.controls.price.value,
       quantity: this.newDrugForm.controls.quantity.value,
@@ -77,13 +77,12 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
       });
   }
 
-  getRandomNum(): string {
-    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    return `${s4()}${s4()}${s4()}${s4()}`;
+  getDrugSgtin(): string {
+    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(10).substring(1);
+    return `${DrugSgtin.header}.${DrugSgtin.filter}.${DrugSgtin.partition}.${s4()}.${s4()}.${s4()}${s4()}`;
   }
 
   ngOnDestroy(): void {
     this.userSubscription.unsubscribe();
   }
-
 }

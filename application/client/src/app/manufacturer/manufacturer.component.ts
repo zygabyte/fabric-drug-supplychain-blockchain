@@ -24,6 +24,10 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
 
   error: string;
 
+  header = '48';
+  filter = '1';
+  partition = '5';
+
   constructor(private userService: UserService, private formBuilder: FormBuilder, private drugService: DrugService) { }
 
   ngOnInit() {
@@ -51,7 +55,7 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
     const formDrugName: string = this.newDrugForm.controls.name.value;
 
     const drug: Drug = {
-      drugId: `${formDrugName.toLowerCase()}${this.getRandomNum()}`,
+      drugId: `${this.getDrugSgtin()}`,
       drugName: formDrugName,
       price: this.newDrugForm.controls.price.value,
       quantity: this.newDrugForm.controls.quantity.value,
@@ -77,13 +81,12 @@ export class ManufacturerComponent implements OnInit, OnDestroy {
       });
   }
 
-  getRandomNum(): string {
-    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    return `${s4()}${s4()}${s4()}${s4()}`;
+  getDrugSgtin(): string {
+    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(10).substring(1);
+    return `${this.header}.${this.filter}.${this.partition}.${s4()}.${s4()}.${s4()}${s4()}`;
   }
 
   ngOnDestroy(): void {
     this.userSubscription.unsubscribe();
   }
-
 }

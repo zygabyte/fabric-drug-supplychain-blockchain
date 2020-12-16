@@ -50,6 +50,7 @@ async function getUsernamePassword(request) {
 
 async function submitTx(request, txName, ...args) {
     try {
+        args[0] = args[0].replace(/\u0000/g, '');
         //  check header; get username and pwd from request
         //  does NOT verify auth credentials - only checks for the existence of the user name and password
         await getUsernamePassword(request);
@@ -81,14 +82,14 @@ supplyChainRouter.route('/drugs').get(function (request, response) {
     submitTx(request, 'queryDrugs', '')
         .then((queryDrugsResponse) => {
             //  response is already a string;  not a buffer
-            const drugs = JSON.parse(JSON.parse(queryDrugsResponse));
+            const drugs = JSON.parse(queryDrugsResponse);
             console.log(drugs);
             response.status(httpStatusCodes.STATUS_SUCCESS);
             response.send({code: appCodes.SUCCESS, message: 'Successfully retrieved drugs', data: drugs});
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 "There was a problem getting the list of drugs.");
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -108,7 +109,7 @@ supplyChainRouter.route('/drugs/:id').get(function (request, response) {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 'Drug id, ' + request.params.id +
                 ' does not exist or the user does not have access to drug details at this time.');
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -128,7 +129,7 @@ supplyChainRouter.route('/drugs/drug-history/:id').get(function (request, respon
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_FOUND,
                 'Drug id, ' + request.params.id +
                 ' does not exist or the user does not have access to drug history at this time.');
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -150,7 +151,7 @@ supplyChainRouter.route('/drugs').post(function (request, response) {
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_CREATED,
                 "There was a problem manufacturing the drug.");
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -169,7 +170,7 @@ supplyChainRouter.route('/drugs/manufacturer/ship/:id').patch(function (request,
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
                 "There was a problem in the manufacturer shipping the drug," + request.params.id);
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -189,7 +190,7 @@ supplyChainRouter.route('/drugs/distributor/receive/:id').patch(function (reques
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
                 "There was a problem in the distributor receiving the drug," + request.params.id);
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -208,7 +209,7 @@ supplyChainRouter.route('/drugs/distributor/ship/:id').patch(function (request, 
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
                 "There was a problem in the distributor shipping the drug," + request.params.id);
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -228,7 +229,7 @@ supplyChainRouter.route('/drugs/wholesaler/receive/:id').patch(function (request
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
                 "There was a problem in the wholesaler receiving the drug," + request.params.id)
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -247,7 +248,7 @@ supplyChainRouter.route('/drugs/wholesaler/ship/:id').patch(function (request, r
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SHIPPED,
                 "There was a problem in the wholesaler shipping the drug," + request.params.id);
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -268,7 +269,7 @@ supplyChainRouter.route('/drugs/retailer/receive/:id').patch(function (request, 
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_RECEIVED,
                 "There was a problem in the retailer receiving the drug," + request.params.id);
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -287,7 +288,7 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, res
         }, (error) => {
             const errorResponse = utils.prepareErrorResponse(error, appCodes.DRUG_NOT_SOLD,
                 "There was a problem in the retailer selling the drug," + request.params.id);
-            
+
             response.status(httpStatusCodes.STATUS_SERVER_ERROR);
             response.send(errorResponse);
         });
@@ -297,20 +298,20 @@ supplyChainRouter.route('/drugs/retailer/sell/:id').patch(function (request, res
 /// __________________________________Drug Authorization__________________________________
 /// PATCH - /drugs/authorize/:id
 supplyChainRouter.route('/drugs/authorize').patch(function (request, response) {
-    
+
     const encryptedId = request.body.encryptedDrugId;
-    
-    console.log('encryptedId');
+
+    console.log('encrypted drug Id');
     console.log(encryptedId);
-    
+
     const decryptedData = utils.decryptData(encryptedId);
-    
-    console.log('decrypted data');
+
+    console.log('decrypted drug Id');
     console.log(decryptedData);
-    
+
     getUsernamePassword(request).then(() => {
         let smartContractName = '';
-        
+
         utils.getUser(request.username, defaultUser.userId).then((user) => {
 
             switch (user.usertype) {
@@ -341,7 +342,7 @@ supplyChainRouter.route('/drugs/authorize').patch(function (request, response) {
                     response.status(httpStatusCodes.STATUS_SERVER_ERROR);
                     response.send(errorResponse);
                 });
-            
+
         }, (userErr) => {
             const errorResponse = utils.prepareErrorResponse(userErr, appCodes.USER_NOT_FOUND,
                 "Could not get user details for user, " + request.username);
@@ -369,11 +370,11 @@ supplyChainRouter.route('/drugs/authorize').patch(function (request, response) {
 //  Usage 2:    "smith", "",        "manufacturer"
 
 supplyChainRouter.route('/users/register').post(function (request, response) {
-    
+
     const userId = request.body.userid;
     const userPwd = request.body.password;
     const userType = request.body.usertype;
-    
+
     try {
         //  only admin can call this api;  get admin username and pwd from request header
         getUsernamePassword(request)
@@ -392,21 +393,21 @@ supplyChainRouter.route('/users/register').post(function (request, response) {
                         const errorResponse = utils.prepareErrorResponse(registerError, appCodes.USER_NOT_REGISTERED,
                             "User, " + userId + " could not be registered. "
                             + "Verify if calling identity has admin privileges.");
-                        
+
                         response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
                         response.send(errorResponse);
                     });
             }, usernamePassErr => {
                 const errorResponse = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_HEADER,
                     "Invalid header;  User, " + userId + " could not be registered.")
-                
+
                 response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
                 response.send(errorResponse);
             });
     } catch (error) {
         const errorResponse = utils.prepareErrorResponse(error, httpStatusCodes.STATUS_SERVER_ERROR,
             "Internal server error; User, " + userId + " could not be registered.");
-        
+
         response.status(httpStatusCodes.STATUS_SERVER_ERROR);
         response.send(errorResponse);
     }
@@ -422,7 +423,7 @@ supplyChainRouter.route('/users/enroll').post(function (request, response) {
     const userId = request.body.userid;
     const userPwd = request.body.password;
     const userType = request.body.usertype;
-    
+
     //  retrieve username, password of the called from authorization header
     getUsernamePassword(request).then(newRequest => {
         utils.enrollUser(userId, userPwd, userType).then(enrolledUser => {
@@ -431,14 +432,14 @@ supplyChainRouter.route('/users/enroll').post(function (request, response) {
         }, enrolledError => {
             const errorResponse = utils.prepareErrorResponse(enrolledError, appCodes.USER_NOT_ENROLLED,
                 "User, " + newRequest.username + " could not be enrolled. Check that user is registered.");
-            
+
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
             response.send(errorResponse);
         });
     }, usernamePassErr => {
         const errorResponse = utils.prepareErrorResponse(usernamePassErr, appCodes.INVALID_USER_HEADER,
             "Invalid header;  User, " + request.username + " could not be enrolled.");
-        
+
         response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
         response.send(errorResponse); // this is made possible because the request object property of user name and password has been added (in getUsernamePassword).
         // hence we can access it because it points to the same reference in memory
@@ -459,14 +460,14 @@ supplyChainRouter.route('/users/is-enrolled/:id').get(function (request, respons
             }, enrolledError => {
                 const errorResponse = utils.prepareErrorResponse(enrolledError, appCodes.USER_NOT_ENROLLED,
                     "Error checking enrollment for user, " + userId);
-                
+
                 response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
                 response.send(errorResponse);
             });
         }, usernamePwdErr => {
             const errorResponse = utils.prepareErrorResponse(usernamePwdErr, appCodes.INVALID_USER_HEADER,
                 "Invalid header; Error checking enrollment for user, " + userId);
-            
+
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
             response.send(errorResponse);
         });
@@ -484,14 +485,14 @@ supplyChainRouter.route('/users').get(function (request, response) {
             }, (allUsersErr) => {
                 const errorResponse = utils.prepareErrorResponse (allUsersErr, appCodes.USER_NOT_FOUND,
                     "Problem getting list of users.");
-                
+
                 response.status(httpStatusCodes.STATUS_SERVER_ERROR);
                 response.send(errorResponse);
             });
         }, (reqError) => {
             const errorResponse = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
                 "Invalid header;  User, " + request.username + " could not be enrolled.");
-            
+
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
             response.send(errorResponse);
         });
@@ -501,9 +502,9 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
     //  Get admin username and pwd from request header
     //  Only admin can call this api; this is not verified here;
     //  Possible future enhancement
-    
+
     const userId = request.params.id;
-    
+
     getUsernamePassword(request)
         .then(newRequest => {
             utils.isUserEnrolled(userId).then(isEnrolled => {
@@ -514,7 +515,7 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
                     }, (userErr) => {
                         const errorResponse = utils.prepareErrorResponse(userErr, appCodes.USER_NOT_FOUND,
                             "Could not get user details for user, " + newRequest.params.id);
-                        
+
                         response.status(httpStatusCodes.STATUS_SERVER_ERROR);
                         response.send(errorResponse);
                     });
@@ -522,21 +523,21 @@ supplyChainRouter.route('/users/:id').get(function (request, response) {
                     let error = {};
                     const errorResponse = utils.prepareErrorResponse(error, appCodes.USER_NOT_ENROLLED,
                         "Verify if the user is registered and enrolled.");
-                    
+
                     response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
                     response.send(errorResponse);
                 }
             }, (enrolledErr) => {
                 const errorResponse = utils.prepareErrorResponse(enrolledErr, appCodes.USER_NOT_ENROLLED,
                     "Problem checking for user enrollment.");
-                
+
                 response.status(httpStatusCodes.STATUS_SERVER_ERROR);
                 response.send(errorResponse);
             });
         }, (reqError) => {
             const errorResponse = utils.prepareErrorResponse(reqError, appCodes.INVALID_USER_HEADER,
                 "Invalid header;  User, " + userId + " could not be enrolled.");
-            
+
             response.status(httpStatusCodes.STATUS_CLIENT_ERROR);
             response.send(errorResponse);
         });

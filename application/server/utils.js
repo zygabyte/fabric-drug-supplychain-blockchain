@@ -51,7 +51,7 @@ utils.prepareErrorResponse = (error, code, message) => {
     let result = { "code": code, "message": errorMsg ? errorMsg : message, "error": error };
     console.log("utils.js:prepareErrorResponse(): " + message);
     console.log(result);
-    
+
     return result;
 }
 
@@ -88,11 +88,11 @@ utils.connectGatewayFromConfig = async () => {
         // Parse the connection profile. This would be the path to the file downloaded from the IBM Blockchain Platform operational console, 
         // if using IBM platform to execute
         const ccpPath = path.resolve(__dirname, configData["connection_profile_filename"]);
-        
+
         const defaultUserId = process.env.FABRIC_USER_ID || defaultUser.userId; // the default which is the admin (for local)
         const defaultPassword = process.env.FABRIC_USER_SECRET || defaultUser.userSecret;
         const defaultUserType = process.env.FABRIC_USER_TYPE || defaultUser.userType;
-        
+
         console.log('user: ' + defaultUserId + ", defaultPassword: ", defaultPassword + ", defaultUserType: ", defaultUserType);
 
         // Load connection profile; will be used to locate a gateway
@@ -135,7 +135,7 @@ utils.connectGatewayFromConfig = async () => {
         console.log('Error connecting to Fabric network. ' + error.toString());
     } finally {
     }
-    
+
     return contract;
 }
 
@@ -154,7 +154,7 @@ utils.events = async () => {
     }
 
     console.log("Connecting to event hub..." + peers[0].getName());
-    
+
     //  Assuming that we want to connect to the first peer in the peers list
     const channel_event_hub = channel.getChannelEventHub(peers[0].getName());
 
@@ -200,10 +200,10 @@ utils.submitTx = async(contract, txName, ...args) => {
         console.log ('utils.js: submitTx -> Transaction submitted successfully. Response: ', response.toString());
         return Promise.resolve(response.toString());
     },(error) =>
-        {
-          console.log ('utils.js: submitTx -> Error:' + error.toString());
-          return Promise.reject(error);
-        });
+    {
+        console.log ('utils.js: submitTx -> Error:' + error.toString());
+        return Promise.reject(error);
+    });
 }
 
 //  function registerUser
@@ -282,7 +282,7 @@ utils.enrollUser = async (userid, userpwd, usertype) => {
         return wallet.import(userid, identity).then(notused => {
             console.log('msg: Successfully enrolled user, ' + userid + ' and imported into the wallet');
             console.log('notused', notused);
-            
+
             return `successfully enrolled user ${userid} and imported into the wallet`;
         }, error => {
             console.log("error in wallet.import\n" + error.toString());
@@ -343,16 +343,16 @@ utils.isUserEnrolled = async (userid) => {
 //  Purpose: get specific registered user
 utils.getUser = async (userid, adminIdentity) => {
     console.log(">>>getUser...");
-    
+
     const gateway = new Gateway();
     // Connect to gateway as admin
     await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
-    
+
     const client = gateway.getClient();
     const fabric_ca_client = client.getCertificateAuthority();
     const idService = fabric_ca_client.newIdentityService();
     const user = await idService.getOne(userid, gateway.getCurrentIdentity());
-    const result = {"id": userid};
+    const result = {"userid": userid};
 
     // for admin, usertype is "admin";
     if (userid === defaultUser.userId) {
@@ -373,7 +373,7 @@ utils.getUser = async (userid, adminIdentity) => {
             }
         }
     }
-    
+
     console.log (result);
     return Promise.resolve(result);
 }  //  end of function getUser
@@ -385,7 +385,7 @@ utils.getAllUsers = async (adminIdentity) => {
 
     // Connect to gateway as admin
     await gateway.connect(fabricConnProfile, { wallet, identity: adminIdentity, discovery: { enabled: false, asLocalhost: bLocalHost } });
-    
+
     const client = gateway.getClient();
     const fabric_ca_client = client.getCertificateAuthority();
     const idService = fabric_ca_client.newIdentityService();
@@ -406,21 +406,21 @@ utils.getAllUsers = async (adminIdentity) => {
             tmpUser.usertype = tmpUser.id;
         else {
             attributes = identities[i].attrs;
-            
+
             if (attributes && attributes.length > 0){
                 // look through all attributes for one called "usertype"
                 for (let j = 0; j < attributes.length; j++){
                     if (attributes[j].name === "usertype") {
                         tmpUser.usertype = attributes[j].value;
                         break;
-                    } 
+                    }
                 }
             }
         }
-        
+
         allUsers.push(tmpUser);
     }
-    
+
     return allUsers;
 }  //  end of function getAllUsers
 
@@ -432,9 +432,9 @@ utils.encryptData = (data) => {
 
 utils.decryptData = (cipherText) => {
     const cipherTextBuffer = Buffer.from(cipherText, 'base64');
-    
+
     const plaintext = Buffer.from(cipher.decrypt(cipherTextBuffer, 128, iv));
-    
+
     return plaintext.toString();
 }
 

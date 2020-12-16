@@ -13,7 +13,7 @@ import {UserService} from '../_services';
 })
 export class DrugAuthComponent implements OnInit {
 
-  qrResultString: string;
+  encryptedDrugId: string;
 
   constructor(private drugService: DrugService, private router: Router, private userService: UserService) { }
 
@@ -21,15 +21,17 @@ export class DrugAuthComponent implements OnInit {
   }
 
   clearResult(): void {
-    this.qrResultString = null;
+    this.encryptedDrugId = null;
   }
 
   onScanSuccess(encryptedDrugId: string) {
-    this.qrResultString = encryptedDrugId;
+    this.encryptedDrugId = encryptedDrugId;
     console.log('result string');
     console.log(encryptedDrugId);
+  }
 
-    this.drugService.authorizeDrug(encryptedDrugId)
+  authorizeDrug() {
+    this.drugService.authorizeDrug(this.encryptedDrugId)
       .subscribe((data: ApiModel<DrugTransaction>) => {
         if (data.code === ApiStatusCodes.SUCCESS) {
           console.log('successfully authorized drug movement');
@@ -39,8 +41,7 @@ export class DrugAuthComponent implements OnInit {
         }
 
       }, error => {
-        console.log('error in authenticating drug ', error);
+        console.log('error in authorizing drug ', error);
       });
   }
-
 }

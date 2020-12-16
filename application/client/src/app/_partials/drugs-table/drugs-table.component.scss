@@ -40,24 +40,6 @@
     text-align: right;
     margin: 0px 0px 4px 0px;
   }
-
-  .example-element-button {
-    min-height: 40px;
-    background: $ghost-white;
-    min-width: 150px;
-    font-size: 50;
-    // margin: 10px;
-    color: $dark-grey;
-    // border: 1px solid $ghost-white;
-    cursor: pointer;
-  }
-  .example-element-button:hover {
-    background: $bright-green;
-    border: none;
-  }
-  .example-element-button:disabled {
-    background: $pastel-blue;
-  }
   .status-stage{
     width:20%;
     text-align: center;

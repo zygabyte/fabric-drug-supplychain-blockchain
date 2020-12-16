@@ -1,10 +1,13 @@
 <section>
   <zxing-scanner (scanSuccess)="onScanSuccess($event)"></zxing-scanner>
-  <section class="results" *ngIf="qrResultString">
+  <section class="results" *ngIf="encryptedDrugId">
     <div>
       <small>Result</small>
-      <strong>{{ qrResultString }}</strong>
+      <strong>{{ encryptedDrugId }}</strong>
     </div>
+    <button (click)="authorizeDrug()" class="example-element-button">
+      Authorize Drug
+    </button>
     <button mat-icon-button (click)="clearResult()">&times;</button>
   </section>
 </section>

@@ -1,10 +1,6 @@
 <section>
   <zxing-scanner (scanSuccess)="onScanSuccess($event)"></zxing-scanner>
   <section class="results" *ngIf="encryptedDrugId">
-    <div>
-      <small>Result</small>
-      <strong>{{ encryptedDrugId }}</strong>
-    </div>
     <button (click)="authorizeDrug()" class="example-element-button">
       Authorize Drug
     </button>
